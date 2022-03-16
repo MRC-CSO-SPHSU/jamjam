@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class MeanTest extends Utils {
 
     @DisplayName("Test calculating mean values of NIST datasets") @Test void NISTMean() {
-        val size = 1000000;
+        val size = 100000;
         val re = 1e-15;
         Random generator = new Random(0);
 
@@ -36,14 +36,13 @@ class MeanTest extends Utils {
                 testCounter++;
                 try {
                     val reader = StringArrayCsvReader.builder().build(in);
-                    List<String[]> rawVal = new ArrayList<>(10000);
+                    List<String> rawVal = new ArrayList<>(10000);
 
                     String[] next;
-                    while ((next = reader.next()) != null) rawVal.add(next);
-
-                    double mean = Double.parseDouble(rawVal.get(0)[0]);
+                    while ((next = reader.next()) != null) rawVal.add(next[0]);
+                    double mean = Double.parseDouble(rawVal.get(0));
                     double[] v = new double[rawVal.size() - 3];
-                    IntStream.range(3, rawVal.size()).forEach(i -> v[i - 3] = Double.parseDouble(rawVal.get(i)[0]));
+                    IntStream.range(3, rawVal.size()).forEach(i -> v[i - 3] = Double.parseDouble(rawVal.get(i)));
                     auxTestRelative(size, v, generator, mean, 0., re, f);
                 } catch (Exception e) {
                     e.printStackTrace();
