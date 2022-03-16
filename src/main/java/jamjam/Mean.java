@@ -22,4 +22,37 @@ public final class Mean {
             return Sum.KBKSum(Arrays.stream(x).map(v -> v / x.length).toArray());
     }
 
+
+    /** No scaling
+     * @param input
+     * @return
+     */
+    static double meanFast(double[] x){
+        return Sum.KBKSum(x) / x.length;
+    }
+
+    /** pre-scales the data
+     * @param input
+     * @return
+     */
+    static double meanScaled(double[] x){
+        return Sum.KBKSum(Arrays.stream(x).map(v -> v / x.length).toArray());
+    }
+
+
+    /** weird pairwise sorting?
+     * @param input
+     * @return
+     */
+    static double meanSorted(double[] x){
+        return 0;
+    }
+
+    /** A mix of both
+     * @param input
+     * @return
+     */
+    static double meanSortedScaled(double[] x){
+        return 0;
+    }
 }
