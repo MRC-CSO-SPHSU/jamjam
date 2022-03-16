@@ -52,6 +52,22 @@ class MeanTest extends Utils {
         assertEquals(testCounter, files.length, "Failed to run through all datasets");
     }
 
+    @DisplayName("Test size checks") @Test void size() {
+        assertThrows(ArithmeticException.class, () -> Mean.mean(new double[]{0.}), "Size check fails.");
+    }
+
+    /**
+     * @implNote IDEs might throw a warning regarding the argument being {@code null}. However, since the null check is
+     * implemented implicitly via lombok, this test *has* to stay here for the sake of future releases.
+     */
+    @DisplayName("Test null input") @Test void input() {
+        assertThrows(NullPointerException.class, () -> Mean.mean(null), "Null input test fails.");
+    }
+
+    @DisplayName("Test overflow") @Test void overflow() {
+        val testData = new double[]{Double.MAX_VALUE, Double.MAX_VALUE / 2};
+        assertEquals(Mean.mean(testData), 0.75 * Double.MAX_VALUE, "Overflow check fails.");
+    }
 
     public void auxTestRelative(int sampleSize, double[] values, Random generator, double expectedNISTMean,
                                 double actualMean, double relativeError, String datasetName){
