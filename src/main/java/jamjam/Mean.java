@@ -13,8 +13,7 @@ public final class Mean {
      * @return mean, NaN or Inf.
      * @implSpec Based on the most accurate numerical scheme for mean, slower than the naive version, but faster than
      *           more sophisticated options.
-     * @implNote Might result in Inf, -Inf, or NaN if the input is ill-conditioned.
-     * @throws ArithmeticException When input contains 1 element only.
+     * @implNote Might result in Inf, -Inf, or NaN if the input is poorly filtered.
      * @throws ArithmeticException When input contains 1 element only.
      * @throws NullPointerException When input is {@code null}.
      */
@@ -36,10 +35,10 @@ public final class Mean {
     /**
      * Calculates arithmetic average of all input values.
      * @param x An array of doubles.
-     * @return mean, NaN or Inf.
+     * @return mean, Inf, -Inf, or NaN.
      * @implSpec Based on the most accurate numerical scheme for mean, slower than the naive version, but faster than
      *           more sophisticated options.
-     * @implNote Might result in Inf, -Inf, or NaN if the input is ill-conditioned.
+     * @implNote Might result in Inf, -Inf, or NaN if the input is poorly filtered
      * @throws ArithmeticException When input contains 1 element only.
      * @throws NullPointerException When input is {@code null}.
      */
@@ -47,6 +46,6 @@ public final class Mean {
         if (x.length < 2)
             throw new ArithmeticException("The size of the array has to be at least 2.");
         else
-            return Sum.KBKSum(x) / x.length;
+            return Sum.sum(x) / x.length;
     }
 }
