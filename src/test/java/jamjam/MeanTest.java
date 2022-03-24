@@ -124,5 +124,10 @@ class MeanTest extends Utils {
                 () -> assertNotEquals(status, -1, m + " [test uses subnormal value]")
         );
     }
+
+    @Test
+    void weightedMean() {
+    }
+
 }
 
