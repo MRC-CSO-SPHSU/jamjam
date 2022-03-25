@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 
-import static java.lang.Math.abs;
-import static java.lang.Math.signum;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MeanTest extends Utils {
@@ -24,7 +22,7 @@ class MeanTest extends Utils {
     @DisplayName("Test calculating mean values of NIST datasets") @Test void mean() {
         val size = 100000;
         val re = 1e-15;
-        Random generator = new Random(0);
+        val generator = new Random(0);
 
         val files = new String[] {"lew", "mavro", "lottery", "michelson", "pidigits", "acc1", "acc2", "acc3", "acc4"};
 
@@ -44,7 +42,18 @@ class MeanTest extends Utils {
                     double expectedMean = Double.parseDouble(rawVal.get(0));
                     double[] v = new double[rawVal.size() - 3];
                     IntStream.range(3, rawVal.size()).forEach(i -> v[i - 3] = Double.parseDouble(rawVal.get(i)));
-                    auxTestRelative(size, v, generator, expectedMean, 0., re, f);
+
+                    for (var i = 0; i < size; i++){
+                        shuffleDoubleArray(v, generator);
+                        var mean = Mean.mean(v);
+                        var status = returnRelativeAccuracyStatus(Mean.mean(v), expectedMean, re);
+
+                        var m = String.format(" (|% 6.16e| observed vs |% 6.16e| expected);", mean, expectedMean);
+
+                        assertAll("Should return a neutral test status value i.e. 0",
+                                () -> assertEquals(status, 0, m),
+                                () -> assertNotEquals(status, -1, m + " [test uses subnormal value]"));
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -70,63 +79,19 @@ class MeanTest extends Utils {
         assertEquals(Mean.mean(testData), 0.75 * Double.MAX_VALUE, "Overflow check fails.");
     }
 
-    public void auxTestRelative(int sampleSize, double[] values, Random generator, double expectedNISTMean,
-                                double actualMean, double relativeError, String datasetName){
-            for (var i = 0; i < sampleSize; i++){
-                shuffleDoubleArray(values, generator);
-                testRelative(Mean.mean(values), expectedNISTMean, relativeError);
-            }
-    }
+    @DisplayName("Test weighted mean") @Test void weightedMean() {
+        assertAll("Should pass all basic checks, the rest is done by regular mean tests.",
+                () -> assertThrows(NullPointerException.class, () -> Mean.weightedMean(null, null),
+                                   "Null input test fails."),
+                () -> assertThrows(ArithmeticException.class, () -> Mean.weightedMean(new double[1], null),
+                        "Input size check fails."),
+                () -> assertThrows(ArithmeticException.class, () -> Mean.weightedMean(new double[2], new double[3]),
+                        "Input size comparison fails."),
+                () -> assertEquals(Mean.weightedMean(new double[]{80., 90.}, new double[]{20., 30.}), 86.,
+                                   "Weighting fails."),
+                () -> assertEquals(Mean.weightedMean(new double[]{2., 2.}, new double[]{2., 2.}), 2.,
+                        "Can't pass identical weights check."));
 
-
-    @Test public void testPrecision(){
-        //GSL_rel(Double.NaN, 1, 1); // expected to fail
-        //GSL_rel(1, Double.NaN, 1); // expected to fail
-        testRelative(Double.NaN, Double.NaN, 1);
-        testRelative(1,1,0.5);
-
-        //GSL_rel(Double.POSITIVE_INFINITY, 1, 1); // expected to fail
-        //GSL_rel(1, Double.POSITIVE_INFINITY, 1); // expected to fail
-        //GSL_rel(Double.NEGATIVE_INFINITY, 1, 1);  // expected to fail
-        //GSL_rel(1, Double.NEGATIVE_INFINITY, 1); // expected to fail
-        testRelative(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, 1);
-        testRelative(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, 1);
-        //GSL_rel(Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 1); // expected to fail
-        //GSL_rel(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 1); // expected to fail
-
-        //GSL_rel(1, -Double.MIN_NORMAL/2, 1); // expected to fail
-
-    }
-
-    private void testRelative(double result, double expected, double relativeError){
-        int status;
-        val m = String.format(" (|% 6.16e| observed vs |% 6.16e| expected);", result, expected);
-
-        val rNaN = Double.isNaN(result);
-        val eNaN = Double.isNaN(expected);
-
-        val rInf = Double.isInfinite(result);
-        val eInf = Double.isInfinite(expected);
-
-        val ae = abs(expected);
-        if (rNaN || eNaN)
-            status = rNaN != eNaN ? 1 : 0;
-        else if (rInf || eInf)
-            status = (rInf ? (int) signum(result) : 0) != (eInf ? (int) signum(expected) : 0) ? 1 : 0;
-        else if (ae > 0 && ae < Double.MIN_NORMAL)
-            status = -1;
-        else if (expected != 0.)
-            status = abs(result - expected) / ae > relativeError ? 1 : 0;
-        else
-            status = abs(result) > relativeError ? 1 : 0;
-        assertAll("Should return a neutral test status value i.e. 0",
-                () -> assertEquals(status, 0, m),
-                () -> assertNotEquals(status, -1, m + " [test uses subnormal value]")
-        );
-    }
-
-    @Test
-    void weightedMean() {
     }
 
 }
