@@ -1,7 +1,9 @@
 package jamjam;
 
 import jamjam.aux.Utils;
+
 import lombok.val;
+
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,17 +11,15 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static jamjam.Sum.sum;
 import static java.lang.StrictMath.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class SumTest extends Utils {
 
     /**
      * Generates an ill-conditioned sum and some variations.
      */
-    @Disabled @DisplayName("Test calculating KBK sums") @Test public void testSum(){
+    @Disabled @DisplayName("Test calculating KBK sums") @Test void sum(){
         Random generator = new Random(0);
         val sampleSize = 100000;
         val temp = new double[200];
@@ -37,30 +37,27 @@ class SumTest extends Utils {
 
         for (var i = 0; i < sampleSize; i++){
             shuffleDoubleArray(values, generator);
-            samples[i] = sum(values);
+            samples[i] = Sum.sum(values);
         }
 
-        for (var i = 0; i < sampleSize - 1; i++) {
-            //System.out.println(samples[i]);
-            assertEquals(samples[i], samples[i + 1], 1e-16);
-        }
+        IntStream.range(0, sampleSize - 1).forEach(i -> assertEquals(samples[i], samples[i + 1], 1e-16));
     }
 
     /**
      * Generates multiple ill-conditioned sums.
      */
-    @DisplayName("Test summation and function sanity") @Test public void testInput(){
+    @DisplayName("Test summation and function sanity") @Test void input(){
         assertAll("KBK summation scheme works incorrectly.",
-                () -> assertEquals(sum(1, 1e100, 1, -1e100), 2.0, "Incorrect rounding-off."),
-                () -> assertEquals(sum(IntStream.range(1, 11).mapToDouble(i -> 1.0 * i).toArray()), 55.0,
+                () -> assertEquals(Sum.sum(1, 1e100, 1, -1e100), 2.0, "Incorrect rounding-off."),
+                () -> assertEquals(Sum.sum(IntStream.range(1, 11).mapToDouble(i -> 1.0 * i).toArray()), 55.0,
                                    "Correct summation fails."),
-                () -> assertEquals(sum(7, 8, 9), sum(8, 9, 7), "Permutation affects the answer."),
-                () -> assertEquals(sum(IntStream.range(1, 11).mapToDouble(i -> 1.0 * i).toArray()),
-                        sum(IntStream.iterate(11 - 1, i -> i - 1).limit(10).mapToDouble(i -> 1.0 * i).toArray()),
+                () -> assertEquals(Sum.sum(7, 8, 9), Sum.sum(8, 9, 7), "Permutation affects the answer."),
+                () -> assertEquals(Sum.sum(IntStream.range(1, 11).mapToDouble(i -> 1.0 * i).toArray()),
+                        Sum.sum(IntStream.iterate(11 - 1, i -> i - 1).limit(10).mapToDouble(i -> 1.0 * i).toArray()),
                            "Inverse order of elements breaks the sum."),
-                () -> assertEquals(sum(-0.0, -0.0), -0.0, ""),
-                () -> assertThrows(ArithmeticException.class, () -> sum(new double[]{0.}), "Size check fails."),
-                () -> assertThrows(NullPointerException.class, () -> sum(null), "Null check fails.")
+                () -> assertEquals(Sum.sum(-0.0, -0.0), -0.0, ""),
+                () -> assertThrows(ArithmeticException.class, () -> Sum.sum(new double[]{0.}), "Size check fails."),
+                () -> assertThrows(NullPointerException.class, () -> Sum.sum(null), "Null check fails.")
         );
     }
 
@@ -68,20 +65,33 @@ class SumTest extends Utils {
      * Calculates integral of {@code sin(x)} from 0 to pi. This is mostly a smoke test, but still works well.
      * @implNote Based on the midpoint rule
      */
-    @DisplayName("Test accuracy of summation and stability after permutations") @Test public void testIntegral(){
+    @DisplayName("Test accuracy of summation and stability after permutations") @Test void integralSum(){
         Random generator = new Random(0);
-        final int NLIM = 50000000;
-        final double startPoint = 0.;
-        final double endPoint = Math.PI;
-        final double dx = (endPoint - startPoint) / NLIM;
-        final double[] midpoints = IntStream.range(0, NLIM).mapToDouble(i -> sin(i * dx + dx / 2)).toArray();
+        val NLIM = 50000000;
+        val startPoint = 0.;
+        val endPoint = Math.PI;
+        val dx = (endPoint - startPoint) / NLIM;
+        val midpoints = IntStream.range(0, NLIM).mapToDouble(i -> sin(i * dx + dx / 2)).toArray();
 
-        assertEquals(2.0, sum(midpoints) * dx, 1e-16);
+        assertEquals(2.0, Sum.sum(midpoints) * dx, 1e-16);
 
         for (var i = 0; i < 5; i++){
             shuffleDoubleArray(midpoints, generator);
-            assertEquals(2.0, sum(midpoints) * dx, 1e-16);
+            assertEquals(2.0, Sum.sum(midpoints) * dx, 1e-16);
         }
     }
 
+    @DisplayName("Test weighted sum") @Test void weightedSum() {
+        assertAll("Should pass all basic checks, the rest is done by regular mean tests.",
+                () -> assertThrows(NullPointerException.class, () -> Sum.weightedSum(null, null),
+                        "Null input test fails."),
+                () -> assertThrows(ArithmeticException.class, () -> Sum.weightedSum(new double[1], null),
+                        "Input size check fails."),
+                () -> assertThrows(ArithmeticException.class, () -> Sum.weightedSum(new double[2], new double[3]),
+                        "Input size comparison fails."),
+                () -> assertEquals(Sum.weightedSum(new double[]{80., 90.}, new double[]{20., 30.}), 4300.,
+                        "Weighting fails."),
+                () -> assertEquals(Sum.weightedSum(new double[]{2., 2.}, new double[]{2., 2.}), 8.,
+                        "Can't pass identical weights check."));
+    }
 }
