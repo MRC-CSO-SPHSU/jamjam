@@ -4,6 +4,8 @@ import lombok.NonNull;
 
 import java.util.stream.IntStream;
 
+import static jamjam.Sum.sum;
+
 public final class Mean {
 
     /**
@@ -18,18 +20,14 @@ public final class Mean {
      * @throws NullPointerException When input is {@code null}.
      */
     public static double weightedMean(double @NonNull [] x, double[] weights) {
-        double meanValue;
-
         if (x.length < 2)
             throw new ArithmeticException("The size of the array has to be at least 2.");
 
         if (weights != null && (x.length != weights.length))
             throw new ArithmeticException("The total number of weights differs from the sample size.");
 
-        if (weights == null) meanValue = mean(x);
-        else meanValue = mean(IntStream.range(0, x.length).mapToDouble(i -> x[i] * weights[i]).toArray());
-
-        return meanValue;
+        if (weights == null) return mean(x);
+        else return sum(IntStream.range(0, x.length).mapToDouble(i -> x[i] * weights[i]).toArray()) / sum(weights);
     }
 
     /**
@@ -46,6 +44,6 @@ public final class Mean {
         if (x.length < 2)
             throw new ArithmeticException("The size of the array has to be at least 2.");
         else
-            return Sum.sum(x) / x.length;
+            return sum(x) / x.length;
     }
 }
