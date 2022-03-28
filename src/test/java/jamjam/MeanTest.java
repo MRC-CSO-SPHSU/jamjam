@@ -1,6 +1,5 @@
 package jamjam;
 
-import com.github.skjolber.stcsv.sa.StringArrayCsvReader;
 import jamjam.aux.Utils;
 
 import lombok.val;
@@ -8,19 +7,14 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class MeanTest extends Utils {
 
     @DisplayName("Test calculating mean values of NIST datasets") @Test void mean() {
-        val size = 100000;
+        val testSize = 100000;
         val re = 1e-15;
         val generator = new Random(0);
 
@@ -30,36 +24,29 @@ class MeanTest extends Utils {
 
         for (var f : files) {
             val is = getClass().getClassLoader().getResourceAsStream( f + ".csv");
-            if (is != null) {
-                val in = new BufferedReader(new InputStreamReader(is));
-                testCounter++;
-                try {
-                    val reader = StringArrayCsvReader.builder().build(in);
-                    List<String> rawVal = new ArrayList<>(10000);
 
-                    String[] next;
-                    while ((next = reader.next()) != null) rawVal.add(next[0]);
-                    double expectedMean = Double.parseDouble(rawVal.get(0));
-                    double[] v = new double[rawVal.size() - 3];
-                    IntStream.range(3, rawVal.size()).forEach(i -> v[i - 3] = Double.parseDouble(rawVal.get(i)));
+            val dataColumn = readTestingValues(is);
+            if (dataColumn != null) testCounter++;
 
-                    for (var i = 0; i < size; i++){
-                        shuffleDoubleArray(v, generator);
-                        var mean = Mean.mean(v);
-                        var status = returnRelativeAccuracyStatus(Mean.mean(v), expectedMean, re);
+            val v = new double[dataColumn.length - 3];
 
-                        var m = String.format(" (|% 6.16e| observed vs |% 6.16e| expected);", mean, expectedMean);
+            val  expectedMean = dataColumn[0];
+            System.arraycopy(dataColumn, 3, v, 0, v.length);
 
-                        assertAll("Should return a neutral test status value i.e. 0",
-                                () -> assertEquals(status, 0, m),
-                                () -> assertNotEquals(status, -1, m + " [test uses subnormal value]"));
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else break;
+            for (var i = 0; i < testSize; i++){
+                shuffleDoubleArray(v, generator);
+                var mean = Mean.mean(v);
+                var status = returnRelativeAccuracyStatus(mean, expectedMean, re);
+
+                var m = String.format(" (|% 6.16e| observed vs |% 6.16e| expected);", mean, expectedMean);
+
+                assertAll("Should return a neutral test status value i.e. 0",
+                        () -> assertEquals(status, 0, m),
+                        () -> assertNotEquals(status, -1, m + " [test uses subnormal value]"));
+
+            }
         }
-        assertEquals(testCounter, files.length, "Failed to run through all datasets");
+        assertEquals(files.length, testCounter, "Failed to run through all datasets");
     }
 
     @DisplayName("Test size checks") @Test void size() {
