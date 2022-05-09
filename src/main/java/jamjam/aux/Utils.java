@@ -42,12 +42,12 @@ public class Utils {
      * @param expected The expected return value of the same method.
      * @param relativeError *A priori* relative error expected from the method. Relevant only when both expected and
      *                      actual values both are not Inf, -Inf, or NaN.
-     * @return Status value, 0 when computations are withing the margin of error, -1 when a subnormal number is
-     *         encountered, 1 when there are unexpected -Inf, Inf, or NaN.
+     * @return Status value, 0 when computations are withing the margin of error, -1 when a subnormal number (underflow)
+     *         is encountered, 1 when there are unexpected -Inf, Inf, or NaN.
+     * @see  <a href="https://docs.oracle.com/cd/E60778_01/html/E60763/z4000ac020351.html">Undeflow</a>
      */
     public static int returnRelativeAccuracyStatus(double result, double expected, double relativeError){
         int status;
-
         val rNaN = Double.isNaN(result);
         val eNaN = Double.isNaN(expected);
 
