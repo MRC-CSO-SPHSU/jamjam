@@ -65,4 +65,12 @@ class UtilsTest {
         if (dataColumn != null) assertEquals(dataColumn[0], -177.435000000000, "Corrupted data");
         assertNull(Utils.readTestingValues(null), "Has to return null if there is null input");
     }
+
+    @Test
+    void trim() {
+        assertAll("Any number that is less than Double.MIN_NORMAL must result in Double.MIN_NORMAL returned.",
+                () -> assertEquals(Utils.trim(0), Double.MIN_NORMAL, "Comparison to 0 fails."),
+                () -> assertEquals(Utils.trim(-1), Double.MIN_NORMAL, "Comparison to -1 fails."),
+                () -> assertEquals(Utils.trim(1), 1, "Comparison to 1 fails."));
+    }
 }

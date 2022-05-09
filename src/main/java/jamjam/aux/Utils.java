@@ -14,6 +14,7 @@ import java.util.stream.IntStream;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.signum;
+import static java.lang.StrictMath.max;
 
 public class Utils {
     /**
@@ -91,5 +92,14 @@ public class Utils {
             }
         }
         return null;
+    }
+
+    /**
+     * Checks if the value is positive and normal, returns the value itself or {@code MIN_NORMAL} when the check fails.
+     * @param x Double value.
+     * @return x or MIN_NORMAL.
+     */
+    public static double trim(double x){
+        return max(x, Double.MIN_NORMAL);
     }
 }
