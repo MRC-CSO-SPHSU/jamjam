@@ -1,6 +1,7 @@
 package jamjam;
 
 import lombok.NonNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.IntStream;
 
@@ -19,7 +20,7 @@ public final class Mean {
      * @throws ArithmeticException When input contains 1 element only.
      * @throws NullPointerException When input is {@code null}.
      */
-    public static double weightedMean(double @NonNull [] x, double[] weights) {
+    public static double mean(double @NonNull [] x, double @Nullable [] weights) {
         if (x.length < 2)
             throw new ArithmeticException("The size of the array has to be at least 2.");
 

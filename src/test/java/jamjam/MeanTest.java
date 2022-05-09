@@ -68,15 +68,15 @@ class MeanTest extends Utils {
 
     @DisplayName("Test weighted mean") @Test void weightedMean() {
         assertAll("Should pass all basic checks, the rest is done by regular mean tests.",
-                () -> assertThrows(NullPointerException.class, () -> Mean.weightedMean(null, null),
+                () -> assertThrows(NullPointerException.class, () -> Mean.mean(null, null),
                                    "Null input test fails."),
-                () -> assertThrows(ArithmeticException.class, () -> Mean.weightedMean(new double[1], null),
+                () -> assertThrows(ArithmeticException.class, () -> Mean.mean(new double[1], null),
                         "Input size check fails."),
-                () -> assertThrows(ArithmeticException.class, () -> Mean.weightedMean(new double[2], new double[3]),
+                () -> assertThrows(ArithmeticException.class, () -> Mean.mean(new double[2], new double[3]),
                         "Input size comparison fails."),
-                () -> assertEquals(Mean.weightedMean(new double[]{80., 90.}, new double[]{20., 30.}), 86.,
+                () -> assertEquals(Mean.mean(new double[]{80., 90.}, new double[]{20., 30.}), 86.,
                                    "Weighting fails."),
-                () -> assertEquals(Mean.weightedMean(new double[]{2., 2.}, new double[]{2., 2.}), 2.,
+                () -> assertEquals(Mean.mean(new double[]{2., 2.}, new double[]{2., 2.}), 2.,
                         "Can't pass identical weights check."));
 
     }

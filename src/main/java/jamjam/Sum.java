@@ -10,7 +10,7 @@ public class Sum {
     /**
      * @param x An array of doubles.
      * @return sum, -Inf, Inf, or NaN.
-     * @implSpec Uses Kahan–Babuška-Klein scheme (scalar), potentially the slowest one available.
+     * @implSpec Uses Kahan-Babushka-Neumaier scheme (scalar), potentially the slowest one available.
      * @implNote Returns Inf or -Inf in the case of overflow, NaN if the original data contains one, NaN if there is an
      *           undefined operation such as Infinity - Infinity as per Java specification.
      * @throws NullPointerException When input is {@code null}.
