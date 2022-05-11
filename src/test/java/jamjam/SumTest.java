@@ -98,10 +98,39 @@ class SumTest extends Utils {
                         "Input size check fails."));
     }
 
-    @Disabled @Test @DisplayName("Test cumulative sum") void cumulativeSum() {
+    @Test @DisplayName("Test cumulative sum") void cumulativeSum() {
+
+        assertThrows(NullPointerException.class, () -> Sum.cumulativeSum(null), "Null check fails.");
+
+        assertAll("Simple sums that can be easily verified manually must work, but they don't",
+                () -> assertArrayEquals(Sum.cumulativeSum(new double[]{1., 1., 1.}), new double[]{1., 2., 3.},
+                        "The trivial example fails."),
+                () -> assertArrayEquals(Sum.cumulativeSum(new double[]{1., 2., 3.}), new double[]{1., 3., 6.},
+                        ""));
+        assertAll("Basic arrays of length 0, 1, 2 should pass the test, but they fail.",
+                () -> assertArrayEquals(Sum.cumulativeSum(new double[]{}), new double[]{},
+                "Empty input results in empty output."),
+        () -> assertArrayEquals(Sum.cumulativeSum(new double[]{Math.PI}), new double[]{Math.PI},
+                "An array of size 1 doesn't return a singular value(array)"),
+        () -> assertArrayEquals(Sum.cumulativeSum(new double[]{Math.PI, Math.PI}), new double[]{Math.PI, 2*Math.PI},
+                "A smoke test for an array of size 2 or more doesn't work."));
     }
 
-    @Test
-    void weightedCumulativeSum() {
+    @DisplayName("Test weighted cumulative sum") @Test void weightedCumulativeSum() {
+
+        assertThrows(ArithmeticException.class, () -> Sum.weightedCumulativeSum(new double[]{1., 1.},
+                new double[]{1., 1., 1.}), "Dimension check fails.");
+
+        assertArrayEquals(Sum.cumulativeSum(new double[]{1., 2., 3.}),
+                Sum.weightedCumulativeSum(new double[]{1., 2., 3.}, new double[]{1., 1., 1.}),
+                "Multiplying by a vector of 1 must give the same result as the conventional cumulative sum method.");
+        assertArrayEquals(Sum.cumulativeSum(new double[]{0., 0., 0.}),
+                Sum.weightedCumulativeSum(new double[]{1., 2., 3.}, new double[]{0., 0., 0.}),
+                "Zero weights do not zero the sum.");
+        assertArrayEquals(Sum.cumulativeSum(new double[]{2., 4., 6.}),
+                Sum.weightedCumulativeSum(new double[]{1., 2., 3.}, new double[]{2., 2., 2.}),
+                "Non-trivial weights (2) do not work.");
+
+
     }
 }
