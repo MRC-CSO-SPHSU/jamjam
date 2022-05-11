@@ -65,9 +65,9 @@ public class Sum {
      * @throws NullPointerException When input is {@code null}.
      * @see #sum(double[])
      */
-    // fixme this version is slow and probably less accurate; think about a more general function for this.
-    // think how to test this
     public static double[] cumulativeSum(double @NonNull [] x){
+        if (x.length == 0)
+            return new double[]{};
         double[] cSum = new double[x.length];
         cSum[0] = x[0];
 
