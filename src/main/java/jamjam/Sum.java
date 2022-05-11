@@ -79,6 +79,15 @@ public class Sum {
         return cSum;
     }
 
+    /**
+     * A weighted version of the {@link #cumulativeSum(double[])} method, when weights are {@code null}, runs
+     * {@link #cumulativeSum(double[])} instead.
+     * @param x Actual values.
+     * @param weights Corresponding weights.
+     * @return An array of weighted cumulative sums.
+     * @throws ArithmeticException When there is an array size mismatch.
+     * @see #cumulativeSum(double[])
+     */
     public static double[] weightedCumulativeSum(double @NonNull [] x, double @Nullable [] weights){
         if (weights != null && (x.length != weights.length))
             throw new ArithmeticException("The total number of weights differs from the sample size.");
