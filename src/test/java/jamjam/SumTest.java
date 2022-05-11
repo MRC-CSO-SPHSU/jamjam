@@ -13,6 +13,7 @@ import java.util.stream.IntStream;
 
 import static java.lang.StrictMath.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SumTest extends Utils {
 
@@ -55,8 +56,10 @@ class SumTest extends Utils {
                 () -> assertEquals(Sum.sum(IntStream.range(1, 11).mapToDouble(i -> 1.0 * i).toArray()),
                         Sum.sum(IntStream.iterate(11 - 1, i -> i - 1).limit(10).mapToDouble(i -> 1.0 * i).toArray()),
                            "Inverse order of elements breaks the sum."),
-                () -> assertEquals(Sum.sum(-0.0, -0.0), -0.0, ""),
-                () -> assertThrows(ArithmeticException.class, () -> Sum.sum(new double[]{0.}), "Size check fails."),
+                () -> assertEquals(Sum.sum(-0.0, -0.0), -0.0, "Doesn't follow IEEE."),
+                () -> assertEquals(Sum.sum(0.), 0.,""),
+                () -> assertEquals(Sum.sum(Math.PI), Math.PI,""),
+                () -> assertEquals(Sum.sum(new double[]{}), 0.,""),
                 () -> assertThrows(NullPointerException.class, () -> Sum.sum(null), "Null check fails.")
         );
     }
@@ -85,13 +88,20 @@ class SumTest extends Utils {
         assertAll("Should pass all basic checks, the rest is done by regular mean tests.",
                 () -> assertThrows(NullPointerException.class, () -> Sum.weightedSum(null, null),
                         "Null input test fails."),
-                () -> assertThrows(ArithmeticException.class, () -> Sum.weightedSum(new double[1], null),
-                        "Input size check fails."),
                 () -> assertThrows(ArithmeticException.class, () -> Sum.weightedSum(new double[2], new double[3]),
                         "Input size comparison fails."),
                 () -> assertEquals(Sum.weightedSum(new double[]{80., 90.}, new double[]{20., 30.}), 4300.,
                         "Weighting fails."),
                 () -> assertEquals(Sum.weightedSum(new double[]{2., 2.}, new double[]{2., 2.}), 8.,
-                        "Can't pass identical weights check."));
+                        "Can't pass identical weights check."),
+                () -> assertEquals(0., Sum.weightedSum(new double[]{}, new double[]{}),
+                        "Input size check fails."));
+    }
+
+    @Disabled @Test @DisplayName("Test cumulative sum") void cumulativeSum() {
+    }
+
+    @Test
+    void weightedCumulativeSum() {
     }
 }
