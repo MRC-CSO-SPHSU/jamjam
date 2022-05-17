@@ -59,7 +59,7 @@ class SumTest extends Utils {
                 () -> assertEquals(Sum.sum(-0.0, -0.0), -0.0, "Doesn't follow IEEE."),
                 () -> assertEquals(Sum.sum(0.), 0.,""),
                 () -> assertEquals(Sum.sum(Math.PI), Math.PI,""),
-                () -> assertEquals(Sum.sum(new double[]{}), 0.,""),
+                () -> assertEquals(Sum.sum(), 0.,""),
                 () -> assertThrows(NullPointerException.class, () -> Sum.sum(null), "Null check fails.")
         );
     }
