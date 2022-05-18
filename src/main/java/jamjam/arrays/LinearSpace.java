@@ -33,7 +33,7 @@ public class LinearSpace {
     }
 
     /**
-     * {@code num} defaults to {@link 50}.
+     * {@code num} defaults to {@code 50}.
      *
      * @see LinearSpace#linspace(double, double, int, boolean)
      */
@@ -42,7 +42,7 @@ public class LinearSpace {
     }
 
     /**
-     * {@code endpoint} defaults to {@link true}.
+     * {@code endpoint} defaults to {@code true}.
      *
      * @see LinearSpace#linspace(double, double, int, boolean)
      */
@@ -51,7 +51,7 @@ public class LinearSpace {
     }
 
     /**
-     * {@code endpoint} defaults to {@link true}, {@code num} defaults to {@link 50}.
+     * {@code endpoint} defaults to {@code true}, {@code num} defaults to {@code 50}.
      *
      * @see LinearSpace#linspace(double, double, int, boolean)
      */
