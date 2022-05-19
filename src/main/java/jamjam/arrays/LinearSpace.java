@@ -2,6 +2,8 @@ package jamjam.arrays;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.stream.IntStream;
+
 import static java.lang.StrictMath.fma;
 
 public class LinearSpace {
@@ -22,14 +24,8 @@ public class LinearSpace {
         if (totalNumber == 1)
             return new double[]{start};
 
-        double[] values = new double[totalNumber];
-
         double stepSize = (stop - start) / (endpointIncluded ? totalNumber - 1 : totalNumber);
-
-        for (var i = 0; i < totalNumber; i++)
-            values[i] = fma(i, stepSize, start);
-
-        return values;
+        return IntStream.range(0, totalNumber).mapToDouble(i -> fma(i, stepSize, start)).toArray();
     }
 
     /**
