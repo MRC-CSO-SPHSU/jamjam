@@ -18,7 +18,7 @@ public class Sum {
      * @throws NullPointerException When input is {@code null}.
      * @see <a href="https://doi.org/10.1007/s00607-005-0139-x">A Generalized Kahan-Babuška-Summation-Algorithm</a>
      */
-    public static double sum(double @NonNull ... x){
+    public static double sum(final double @NonNull ... x){
         switch (x.length) {
             case 0:
                 return 0;
@@ -49,7 +49,7 @@ public class Sum {
      * @throws ArithmeticException When dimensions of input arrays are different.
      * @see <a href="https://doi.org/10.1007/s00607-005-0139-x">A Generalized Kahan-Babuška-Summation-Algorithm</a>
      */
-    public static double weightedSum(double @NonNull [] x, double @Nullable [] weights){
+    public static double weightedSum(final double @NonNull [] x, final double @Nullable [] weights){
         if (weights != null && (x.length != weights.length))
             throw new ArithmeticException("The total number of weights differs from the sample size.");
 
@@ -65,7 +65,7 @@ public class Sum {
      * @throws NullPointerException When input is {@code null}.
      * @see #sum(double[])
      */
-    public static double[] cumulativeSum(double @NonNull [] x){
+    public static double[] cumulativeSum(final double @NonNull [] x){
         if (x.length == 0)
             return new double[]{};
         double[] cSum = new double[x.length];
@@ -88,7 +88,7 @@ public class Sum {
      * @throws ArithmeticException When there is an array size mismatch.
      * @see #cumulativeSum(double[])
      */
-    public static double[] weightedCumulativeSum(double @NonNull [] x, double @Nullable [] weights){
+    public static double[] weightedCumulativeSum(final double @NonNull [] x, final double @Nullable [] weights){
         if (weights != null && (x.length != weights.length))
             throw new ArithmeticException("The total number of weights differs from the sample size.");
 

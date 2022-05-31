@@ -14,13 +14,14 @@ import java.util.stream.IntStream;
 import static java.lang.StrictMath.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class SumTest extends Utils {
 
     /**
      * Generates an ill-conditioned sum and some variations.
      */
-    @Disabled @DisplayName("Test calculating KBK sums") @Test void sum(){
+    @Disabled @Test @DisplayName("Test calculating KBK sums") void sum() {
         Random generator = new Random(0);
         val sampleSize = 100000;
         val temp = new double[200];
@@ -30,13 +31,13 @@ class SumTest extends Utils {
         val values = new double[260];
         IntStream.range(0, 10).forEach(n -> System.arraycopy(vals, 0, values, n * 6, 6));
         double s = 0;
-        for (var j = 0; j < temp.length; j++){
+        for (var j = 0; j < temp.length; j++) {
             temp[j] = pow(generator.nextGaussian() * generator.nextDouble(), 7) - s;
             s += temp[j];
         }
         System.arraycopy(temp, 0, values, 60, temp.length);
 
-        for (var i = 0; i < sampleSize; i++){
+        for (var i = 0; i < sampleSize; i++) {
             shuffleDoubleArray(values, generator);
             samples[i] = Sum.sum(values);
         }
@@ -47,28 +48,29 @@ class SumTest extends Utils {
     /**
      * Generates multiple ill-conditioned sums.
      */
-    @DisplayName("Test summation and function sanity") @Test void input(){
+    @Test @DisplayName("Test summation and function sanity") void input(){
         assertAll("KBK summation scheme works incorrectly.",
                 () -> assertEquals(Sum.sum(1, 1e100, 1, -1e100), 2.0, "Incorrect rounding-off."),
                 () -> assertEquals(Sum.sum(IntStream.range(1, 11).mapToDouble(i -> 1.0 * i).toArray()), 55.0,
-                                   "Correct summation fails."),
+                        "Correct summation fails."),
                 () -> assertEquals(Sum.sum(7, 8, 9), Sum.sum(8, 9, 7), "Permutation affects the answer."),
                 () -> assertEquals(Sum.sum(IntStream.range(1, 11).mapToDouble(i -> 1.0 * i).toArray()),
                         Sum.sum(IntStream.iterate(11 - 1, i -> i - 1).limit(10).mapToDouble(i -> 1.0 * i).toArray()),
-                           "Inverse order of elements breaks the sum."),
+                        "Inverse order of elements breaks the sum."),
                 () -> assertEquals(Sum.sum(-0.0, -0.0), -0.0, "Doesn't follow IEEE."),
-                () -> assertEquals(Sum.sum(0.), 0.,""),
-                () -> assertEquals(Sum.sum(Math.PI), Math.PI,""),
-                () -> assertEquals(Sum.sum(), 0.,""),
+                () -> assertEquals(Sum.sum(0.), 0., ""),
+                () -> assertEquals(Sum.sum(Math.PI), Math.PI, ""),
+                () -> assertEquals(Sum.sum(), 0., ""),
                 () -> assertThrows(NullPointerException.class, () -> Sum.sum(null), "Null check fails.")
         );
     }
 
     /**
      * Calculates integral of {@code sin(x)} from 0 to pi. This is mostly a smoke test, but still works well.
+     *
      * @implNote Based on the midpoint rule
      */
-    @DisplayName("Test accuracy of summation and stability after permutations") @Test void integralSum(){
+    @Test @DisplayName("Test accuracy of summation and stability after permutations") void integralSum() {
         Random generator = new Random(0);
         val NLIM = 50000000;
         val startPoint = 0.;
@@ -78,13 +80,13 @@ class SumTest extends Utils {
 
         assertEquals(2.0, Sum.sum(midpoints) * dx, 1e-16);
 
-        for (var i = 0; i < 5; i++){
+        for (var i = 0; i < 5; i++) {
             shuffleDoubleArray(midpoints, generator);
             assertEquals(2.0, Sum.sum(midpoints) * dx, 1e-16);
         }
     }
 
-    @DisplayName("Test weighted sum") @Test void weightedSum() {
+    @Test @DisplayName("Test weighted sum") void weightedSum() {
         assertAll("Should pass all basic checks, the rest is done by regular mean tests.",
                 () -> assertThrows(NullPointerException.class, () -> Sum.weightedSum(null, null),
                         "Null input test fails."),
@@ -99,7 +101,6 @@ class SumTest extends Utils {
     }
 
     @Test @DisplayName("Test cumulative sum") void cumulativeSum() {
-
         assertThrows(NullPointerException.class, () -> Sum.cumulativeSum(null), "Null check fails.");
 
         assertAll("Simple sums that can be easily verified manually must work, but they don't",
@@ -109,15 +110,14 @@ class SumTest extends Utils {
                         ""));
         assertAll("Basic arrays of length 0, 1, 2 should pass the test, but they fail.",
                 () -> assertArrayEquals(Sum.cumulativeSum(new double[]{}), new double[]{},
-                "Empty input results in empty output."),
-        () -> assertArrayEquals(Sum.cumulativeSum(new double[]{Math.PI}), new double[]{Math.PI},
-                "An array of size 1 doesn't return a singular value(array)"),
-        () -> assertArrayEquals(Sum.cumulativeSum(new double[]{Math.PI, Math.PI}), new double[]{Math.PI, 2*Math.PI},
-                "A smoke test for an array of size 2 or more doesn't work."));
+                        "Empty input results in empty output."),
+                () -> assertArrayEquals(Sum.cumulativeSum(new double[]{Math.PI}), new double[]{Math.PI},
+                        "An array of size 1 doesn't return a singular value(array)"),
+                () -> assertArrayEquals(Sum.cumulativeSum(new double[]{Math.PI, Math.PI}), new double[]{Math.PI, 2 * Math.PI},
+                        "A smoke test for an array of size 2 or more doesn't work."));
     }
 
     @DisplayName("Test weighted cumulative sum") @Test void weightedCumulativeSum() {
-
         assertThrows(ArithmeticException.class, () -> Sum.weightedCumulativeSum(new double[]{1., 1.},
                 new double[]{1., 1., 1.}), "Dimension check fails.");
 
@@ -130,7 +130,5 @@ class SumTest extends Utils {
         assertArrayEquals(Sum.cumulativeSum(new double[]{2., 4., 6.}),
                 Sum.weightedCumulativeSum(new double[]{1., 2., 3.}, new double[]{2., 2., 2.}),
                 "Non-trivial weights (2) do not work.");
-
-
     }
 }
