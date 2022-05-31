@@ -12,11 +12,12 @@ import static java.lang.StrictMath.signum;
 public class ARange {// use records to deal with parameters?
 
     /**
-     *
-     * @param start
-     * @param stop
-     * @param step
-     * @return
+     * Generates a range of numbers starting with {@code start}, but not including {@code stop}. The length of the step
+     * is given by {@code step}.
+     * @param start Starting point, included into the interval by default.
+     * @param stop End point.
+     * @param step The length if the step, can be negative.
+     * @return An array of {@code double} with evenly spaced points.
      * @implSpec In the case when {@code stop} falls into the range it is omitted, for instance, here a set
      * {@code start=0., stop=1., step=0.1} must end with {@code 0.9}.
      */
@@ -37,6 +38,10 @@ public class ARange {// use records to deal with parameters?
         } else return new double[]{};
     }
 
+    /**
+     * The generalized method to generate a range.
+     * @see ARange#arange(double, double, double)
+     */
     static double[] generateRange(double start, double stop, double step) {
         val totalLength = stop - start;
         if (isInfinite(totalLength))
@@ -50,6 +55,10 @@ public class ARange {// use records to deal with parameters?
         }
     }
 
+    /**
+     * The {@link ARange#arange(double, double, double)}, but the starting point defaults to 0.
+     * @see ARange#arange(double, double, double)
+     */
     public static double[] arange(double stop, double step){
         return arange(0, stop, step);
     }
