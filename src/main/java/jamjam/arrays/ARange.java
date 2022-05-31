@@ -50,7 +50,7 @@ public class ARange {
         if (totalIntervals > Integer.MAX_VALUE)
             throw new IndexOutOfBoundsException("The step size is too small, arrays can't store that many.");
         else {
-            val arraySize = (int) (totalIntervals * step == totalLength ? totalIntervals - 1 : totalIntervals);
+            val arraySize = (int) totalIntervals;
             return IntStream.range(0, arraySize).mapToDouble(i -> fma(i, step, start)).toArray();
         }
     }
