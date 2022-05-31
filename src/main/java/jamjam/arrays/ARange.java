@@ -9,7 +9,7 @@ import static java.lang.Double.isNaN;
 import static java.lang.StrictMath.fma;
 import static java.lang.StrictMath.signum;
 
-public class ARange {// use records to deal with parameters?
+public class ARange {
 
     /**
      * Generates a range of numbers starting with {@code start}, but not including {@code stop}. The length of the step
