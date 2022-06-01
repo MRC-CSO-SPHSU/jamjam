@@ -5,6 +5,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LinearSpaceTest {
 
@@ -14,7 +17,7 @@ class LinearSpaceTest {
         assertArrayEquals(positiveStop, LinearSpace.linspace(0., 10., 21, true),
                 "Fails to generate a positive range of values.");
 
-        double[] negativeStop = new double[]{ 0., -0.5, -1., -1.5, -2., -2.5, -3., -3.5, -4., -4.5, -5., -5.5, -6.,
+        double[] negativeStop = new double[]{0., -0.5, -1., -1.5, -2., -2.5, -3., -3.5, -4., -4.5, -5., -5.5, -6.,
                 -6.5, -7., -7.5, -8., -8.5, -9., -9.5, -10.};
         assertArrayEquals(negativeStop, LinearSpace.linspace(0., -10., 21, true),
                 "Fails to generate a negative range of values.");
@@ -39,11 +42,11 @@ class LinearSpaceTest {
         assert scratch != null;
         assertEquals(50, scratch.length,
                 "Length of the output array diverges from the expected (default) value");
-        assertEquals(scratch[scratch.length - 1], 10.,"Actual endpoint value doesn't meet its expected value.");
+        assertEquals(scratch[scratch.length - 1], 10., "Actual endpoint value doesn't meet its expected value.");
 
         scratch = LinearSpace.linspace(0., 10., false);
         assert scratch != null;
-        assertEquals(scratch[scratch.length - 1], 9.8,"Actual endpoint value doesn't meet its expected value.");
+        assertEquals(scratch[scratch.length - 1], 9.8, "Actual endpoint value doesn't meet its expected value.");
     }
 
     @Test @DisplayName("Linear space generator with included endpoint.") void testLinspace1() {
@@ -73,5 +76,19 @@ class LinearSpaceTest {
         assert v != null;
         assertEquals(50, v.length, "Length of the output array diverges from the expected (default) value");
         assertEquals(stop, v[v.length - 1], "Last value doesn't match the stop endpoint.");
+    }
+
+    @Test @DisplayName("Throwables") void testLinspace3() {
+        assertThrows(IllegalArgumentException.class, () -> LinearSpace.linspace(0., Double.POSITIVE_INFINITY, 100,
+                false));
+        assertThrows(IllegalArgumentException.class, () -> LinearSpace.linspace(Double.NEGATIVE_INFINITY, 0, 100,
+                false));
+
+        assertThrows(IllegalArgumentException.class, () -> LinearSpace.linspace(0., Double.NaN, 100, false));
+        assertThrows(IllegalArgumentException.class, () -> LinearSpace.linspace(Double.NaN, 0, 100, false));
+
+        assertThrows(IllegalArgumentException.class, () -> LinearSpace.linspace(-Double.MAX_VALUE / 2, Double.MAX_VALUE,
+                100, false));
+        assertThrows(IllegalArgumentException.class, () -> LinearSpace.linspace(10., 10., 100, false));
     }
 }
