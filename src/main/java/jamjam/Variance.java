@@ -1,6 +1,7 @@
 package jamjam;
 
 import lombok.NonNull;
+import lombok.val;
 import org.jetbrains.annotations.Nullable;
 
 import static jamjam.Mean.mean;
@@ -26,24 +27,18 @@ public class Variance {
      */
     public static double biasedVariance(double @NonNull [] x, double @Nullable [] weights,
                                             double expectedMean){
-        if (x.length <= 1)
-            throw new IllegalArgumentException("Length of the data array is too small, either 0 or 1.");
+        if (valuesOutOfRange(x))
+            throw new IllegalArgumentException("Array is too small or contains invalid values.");
 
         if (weights != null && weights.length != x.length)
             throw new IllegalArgumentException("Input arrays have different lengths.");
-
-        for (double v : x) {
-            double a = abs(v);
-            if (isNaN(v) || isInfinite(v) || a > 0 && a < Double.MIN_NORMAL)
-                throw new IllegalArgumentException(String.format("Value |% 6.16e| is out of expected range.", v));
-        }
 
         if (weights != null)
             for (double w: weights)
                 if (isNaN(w) || isInfinite(w) || w < Double.MIN_NORMAL)
                     throw new IllegalArgumentException(String.format("Value |% 6.16e| is out of expected range.", w));
 
-        double meanValue = isNaN(expectedMean) || isInfinite(expectedMean) ? mean(x, weights) : expectedMean;
+        double meanValue = meanValueValidator(expectedMean, x);
         double[] scratch = new double[x.length];
 
         if (weights != null) {
@@ -104,18 +99,13 @@ public class Variance {
      *                                  {@code +/-Inf}, or subnormal.
      **/
     public static double unbiasedVariance(double @NonNull [] x, double expectedMean) {
-        if (x.length <= 1)
-            throw new IllegalArgumentException("Length of the data array is too small, either 0 or 1.");
-        for (double v : x) {
-            double a = abs(v);
-            if (isNaN(v) || isInfinite(v) || a > 0 && a < Double.MIN_NORMAL)
-                throw new IllegalArgumentException(String.format("Value |% 6.16e| is out of expected range.", v));
-        }
+        if (valuesOutOfRange(x))
+            throw new IllegalArgumentException("Array is too small or contains invalid values.");
 
         double t;
         double[] accumulator = new double[x.length];
 
-        double meanValue = isNaN(expectedMean) || isInfinite(expectedMean) ? mean(x) : expectedMean;
+        double meanValue = meanValueValidator(expectedMean, x);
 
         for (int i = 0; i < x.length; i++){
             t = sum(x[i], -meanValue);
@@ -133,4 +123,21 @@ public class Variance {
     public static double unbiasedVariance(double @NonNull [] x) {
         return unbiasedVariance(x, NaN);
     }
+
+    static double meanValueValidator(final double actualMeanValue, final double @NonNull [] sample) {
+        val boolflag = isNaN(actualMeanValue) || isInfinite(actualMeanValue);
+        return boolflag ? mean(sample) : actualMeanValue;
+    }
+
+    static boolean valuesOutOfRange(final double @NonNull [] actualValues) {
+        if (actualValues.length <= 1)
+            return true;
+        for (double v : actualValues) {
+            double a = abs(v);
+            if (isNaN(v) || isInfinite(v) || a > 0 && a < Double.MIN_NORMAL)
+                return true;
+        }
+        return false;
+    }
+
 }
