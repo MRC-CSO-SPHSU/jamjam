@@ -21,19 +21,21 @@ public class Utils {
      * This function loops over all values in the input array and permutates them randomly.
      * @param x An input array of doubles.
      * @param generator A random generator object.
+     * @throws NullPointerException When any of the arguments is {@code null}.
      * @implNote Based on the Fisher–Yates shuffle.
      * @implSpec No XOR is used to keep the code readable.
      */
-    public static void shuffleDoubleArray(double @NonNull [] x, Random generator)
+    public static void shuffleDoubleArray(final double @NonNull [] x, final @NonNull Random generator)
     {
         int index;
         double temp;
-        for (var i = x.length - 1; i > 0; i--)
-        {
-            index = generator.nextInt(i + 1);
-            temp = x[index];
-            x[index] = x[i];
-            x[i] = temp;
+        if (!((x.length == 0) || (x.length == 1))) {
+            for (var i = x.length - 1; i > 0; i--) {
+                index = generator.nextInt(i + 1);
+                temp = x[index];
+                x[index] = x[i];
+                x[i] = temp;
+            }
         }
     }
 
@@ -44,11 +46,10 @@ public class Utils {
      * @param relativeError *A priori* relative error expected from the method. Relevant only when both expected and
      *                      actual values both are not Inf, -Inf, or NaN.
      * @return Status value, 0 when computations are withing the margin of error, -1 when a subnormal number (underflow)
-     *         is encountered, 1 when there are unexpected -Inf, Inf, or NaN.
+     *         is encountered, 1 when there are unexpected values that fail the check (including -Inf, Inf, or NaN).
      * @see  <a href="https://docs.oracle.com/cd/E60778_01/html/E60763/z4000ac020351.html">Undeflow</a>
      */
     public static int returnRelativeAccuracyStatus(double result, double expected, double relativeError){
-        int status;
         val rNaN = Double.isNaN(result);
         val eNaN = Double.isNaN(expected);
 
@@ -57,27 +58,27 @@ public class Utils {
 
         val ae = abs(expected);
         if (rNaN || eNaN)
-            status = rNaN != eNaN ? 1 : 0;
+            return rNaN != eNaN ? 1 : 0;
         else if (rInf || eInf)
-            status = (rInf ? (int) signum(result) : 0) != (eInf ? (int) signum(expected) : 0) ? 1 : 0;
+            return (rInf ? (int) signum(result) : 0) != (eInf ? (int) signum(expected) : 0) ? 1 : 0;
         else if (ae > 0 && ae < Double.MIN_NORMAL)
-            status = -1;
+            return -1;
         else if (expected != 0.)
-            status = abs(result - expected) / ae > relativeError ? 1 : 0;
+            return abs(result - expected) / ae > relativeError ? 1 : 0;
         else
-            status = abs(result) > relativeError ? 1 : 0;
-        return status;
+            return abs(result) > relativeError ? 1 : 0;
     }
 
     /**
      * An auxiliary method to read testing data from attached CSV files.
      * @param is An {@code InputStream} object, nullable.
      * @return values read from file or null.
+     * @throws RuntimeException When dealing with badly formatted data.
+     * @implSpec Deals only numerical values.
      */
-    public static double[] readTestingValues(InputStream is){
+    public static double[] readTestingValues(InputStream is) {
         if (is != null) {
-            val in = new BufferedReader(new InputStreamReader(is));
-            try {
+            try (val in = new BufferedReader(new InputStreamReader(is))){
                 val reader = StringArrayCsvReader.builder().build(in);
                 List<String> rawVal = new ArrayList<>(10000);
 
@@ -88,7 +89,7 @@ public class Utils {
                 IntStream.range(0, rawVal.size()).forEach(i -> v[i] = Double.parseDouble(rawVal.get(i)));
                 return v;
             } catch (Exception e) {
-                e.printStackTrace();
+                throw new RuntimeException();
             }
         }
         return null;
