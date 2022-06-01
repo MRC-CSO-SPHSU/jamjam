@@ -26,7 +26,7 @@ public class Sum {
                 return x[0];
             default:
                 var s = x[0];
-                var c = 0.f;
+                var c = 0.d;
                 for (var i = 1; i < x.length; i++) {
                     var t = s + x[i];
                     c -= abs(s) >= abs(x[i]) ? ((s - t) + x[i]) : ((x[i] - t) + s);
