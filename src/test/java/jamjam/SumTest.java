@@ -98,6 +98,11 @@ class SumTest extends Utils {
                         "Can't pass identical weights check."),
                 () -> assertEquals(0., Sum.weightedSum(new double[]{}, new double[]{}),
                         "Input size check fails."));
+
+        assertThrows(NullPointerException.class, () -> Sum.weightedSum(null, new double[]{1.0}),
+                "Null input test fails.");
+        assertEquals(0.0d, Sum.weightedSum(new double[]{}, null));
+
     }
 
     @Test @DisplayName("Test cumulative sum") void cumulativeSum() {
@@ -117,7 +122,7 @@ class SumTest extends Utils {
                         "A smoke test for an array of size 2 or more doesn't work."));
     }
 
-    @DisplayName("Test weighted cumulative sum") @Test void weightedCumulativeSum() {
+    @Test @DisplayName("Test weighted cumulative sum") void weightedCumulativeSum() {
         assertThrows(ArithmeticException.class, () -> Sum.weightedCumulativeSum(new double[]{1., 1.},
                 new double[]{1., 1., 1.}), "Dimension check fails.");
 
@@ -130,5 +135,14 @@ class SumTest extends Utils {
         assertArrayEquals(Sum.cumulativeSum(new double[]{2., 4., 6.}),
                 Sum.weightedCumulativeSum(new double[]{1., 2., 3.}, new double[]{2., 2., 2.}),
                 "Non-trivial weights (2) do not work.");
+
+        assertThrows(NullPointerException.class, () -> Sum.weightedCumulativeSum(null, new double[]{}));
+
+        double[] actualWeightedCumulativeSumResult = Sum.weightedCumulativeSum(new double[]{2.0d, 2.0d, 2.0d, 2.0d}, null);
+        assertEquals(4, actualWeightedCumulativeSumResult.length);
+        assertEquals(2.0d, actualWeightedCumulativeSumResult[0]);
+        assertEquals(4.0d, actualWeightedCumulativeSumResult[1]);
+        assertEquals(6.0d, actualWeightedCumulativeSumResult[2]);
+        assertEquals(8.0d, actualWeightedCumulativeSumResult[3]);
     }
 }

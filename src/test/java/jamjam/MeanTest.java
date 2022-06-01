@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MeanTest extends Utils {
 
-    @DisplayName("Test calculating mean values of NIST datasets") @Test void mean() {
+    @Test @DisplayName("Test calculating mean values of NIST datasets") void mean() {
         val testSize = 100000;
         val re = 1e-15;
         val generator = new Random(0);
@@ -49,7 +49,7 @@ class MeanTest extends Utils {
         assertEquals(files.length, testCounter, "Failed to run through all datasets");
     }
 
-    @DisplayName("Test size checks") @Test void size() {
+    @Test @DisplayName("Test size checks") void size() {
         assertThrows(ArithmeticException.class, () -> Mean.mean(new double[]{0.}), "Size check fails.");
     }
 
@@ -57,16 +57,16 @@ class MeanTest extends Utils {
      * @implNote IDEs might throw a warning regarding the argument being {@code null}. However, since the null check is
      * implemented implicitly via lombok, this test *has* to stay here for the sake of future releases.
      */
-    @DisplayName("Test null input") @Test void input() {
+    @Test @DisplayName("Test null input") void input() {
         assertThrows(NullPointerException.class, () -> Mean.mean(null), "Null input test fails.");
     }
 
-    @Disabled @DisplayName("Test overflow") @Test void overflow() {
+    @Disabled @Test @DisplayName("Test overflow") void overflow() {
         val testData = new double[]{Double.MAX_VALUE, Double.MAX_VALUE / 2};
         assertEquals(Mean.mean(testData), 0.75 * Double.MAX_VALUE, "Overflow check fails.");
     }
 
-    @DisplayName("Test weighted mean") @Test void weightedMean() {
+    @Test @DisplayName("Test weighted mean") void weightedMean() {
         assertAll("Should pass all basic checks, the rest is done by regular mean tests.",
                 () -> assertThrows(NullPointerException.class, () -> Mean.mean(null, null),
                                    "Null input test fails."),
@@ -79,6 +79,11 @@ class MeanTest extends Utils {
                 () -> assertEquals(Mean.mean(new double[]{2., 2.}, new double[]{2., 2.}), 2.,
                         "Can't pass identical weights check."));
 
+    }
+
+    @Test void testMean() {
+        assertThrows(ArithmeticException.class, () -> Mean.mean(new double[]{20., 30.}, new double[]{20., 30., 40.}));
+        assertEquals(2., Mean.mean(new double[]{2., 2.}, null), "Can't pass null weights check.");
     }
 
 }
