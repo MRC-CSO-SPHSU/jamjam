@@ -1,6 +1,7 @@
 package jamjam;
 
 import lombok.NonNull;
+import lombok.val;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.IntStream;
@@ -50,11 +51,11 @@ public class Sum {
      * @see <a href="https://doi.org/10.1007/s00607-005-0139-x">A Generalized Kahan-Babuška-Summation-Algorithm</a>
      */
     public static double weightedSum(final double @NonNull [] x, final double @Nullable [] weights){
-        if (weights != null && (x.length != weights.length))
-            throw new ArithmeticException("The total number of weights differs from the sample size.");
-
-        if (weights == null) return sum(x);
-        else return sum(IntStream.range(0, x.length).mapToDouble(i -> x[i] * weights[i]).toArray());
+        if (weights != null)
+            if (x.length != weights.length)
+                throw new ArithmeticException("The total number of weights differs from the sample size.");
+            else return sum(IntStream.range(0, x.length).mapToDouble(i -> x[i] * weights[i]).toArray());
+        else return sum(x);
     }
 
     /**
@@ -68,7 +69,7 @@ public class Sum {
     public static double[] cumulativeSum(final double @NonNull [] x){
         if (x.length == 0)
             return new double[]{};
-        double[] cSum = new double[x.length];
+        val cSum = new double[x.length];
         cSum[0] = x[0];
 
         for (var i = 1; i < x.length; i++){
@@ -89,10 +90,10 @@ public class Sum {
      * @see #cumulativeSum(double[])
      */
     public static double[] weightedCumulativeSum(final double @NonNull [] x, final double @Nullable [] weights){
-        if (weights != null && (x.length != weights.length))
-            throw new ArithmeticException("The total number of weights differs from the sample size.");
-
-        if (weights == null) return cumulativeSum(x);
-        else return cumulativeSum(IntStream.range(0, x.length).mapToDouble(i -> x[i] * weights[i]).toArray());
+        if (weights != null)
+            if (x.length != weights.length)
+                throw new ArithmeticException("The total number of weights differs from the sample size.");
+            else return cumulativeSum(IntStream.range(0, x.length).mapToDouble(i -> x[i] * weights[i]).toArray());
+        else return cumulativeSum(x);
     }
 }
