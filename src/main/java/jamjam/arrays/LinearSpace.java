@@ -16,7 +16,8 @@ public class LinearSpace {
      * @param endpointIncluded A flag to include the stop point.
      * @return An array of values, an empty array, null.
      */
-    public static double @Nullable [] linspace(double start, double stop, int totalNumber, boolean endpointIncluded) {
+    public static double @Nullable [] linspace(final double start, final double stop, final int totalNumber,
+                                               final boolean endpointIncluded) {
         if (totalNumber < 0)
             return null;
         if (totalNumber == 0)
@@ -33,7 +34,7 @@ public class LinearSpace {
      *
      * @see LinearSpace#linspace(double, double, int, boolean)
      */
-    public static double @Nullable [] linspace(double start, double stop, boolean endpoint) {
+    public static double @Nullable [] linspace(final double start, final double stop, final boolean endpoint) {
         return linspace(start, stop, 50, endpoint);
     }
 
@@ -42,7 +43,7 @@ public class LinearSpace {
      *
      * @see LinearSpace#linspace(double, double, int, boolean)
      */
-    public static double @Nullable [] linspace(double start, double stop, int num) {
+    public static double @Nullable [] linspace(final double start, final double stop, final int num) {
         return linspace(start, stop, num, true);
     }
 
@@ -51,7 +52,7 @@ public class LinearSpace {
      *
      * @see LinearSpace#linspace(double, double, int, boolean)
      */
-    public static double @Nullable [] linspace(double start, double stop) {
+    public static double @Nullable [] linspace(final double start, final double stop) {
         return linspace(start, stop, 50, true);
     }
 }
