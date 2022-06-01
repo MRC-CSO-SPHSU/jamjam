@@ -4,6 +4,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.IntStream;
 
+import static java.lang.Double.isInfinite;
+import static java.lang.Double.isNaN;
+import static java.lang.StrictMath.abs;
 import static java.lang.StrictMath.fma;
 
 public class LinearSpace {
@@ -15,6 +18,8 @@ public class LinearSpace {
      * @param totalNumber Total number of intervals.
      * @param endpointIncluded A flag to include the stop point.
      * @return An array of values, an empty array, null.
+     * @throws IllegalArgumentException When arguments are {@code NaN} or {@code Infinity}, the length of the interval
+     *                                  is {@code Infinity}, the size of the step is too small.
      */
     public static double @Nullable [] linspace(final double start, final double stop, final int totalNumber,
                                                final boolean endpointIncluded) {
@@ -24,8 +29,19 @@ public class LinearSpace {
             return new double[]{};
         if (totalNumber == 1)
             return new double[]{start};
+        if (isInfinite(start) || isInfinite(stop))
+            throw new IllegalArgumentException("Infinite ranges are not accepted.");
+        if (isNaN(start) || isNaN(stop))
+            throw new IllegalArgumentException("NaN is passed as an argument");
 
-        double stepSize = (stop - start) / (endpointIncluded ? totalNumber - 1 : totalNumber);
+        double intervalLength = stop - start;
+        if (isInfinite(intervalLength))
+            throw new IllegalArgumentException("Total length of the interval is infinite.");
+
+        double stepSize = intervalLength / (endpointIncluded ? totalNumber - 1 : totalNumber);
+        if (abs(stepSize) < Double.MIN_NORMAL)
+            throw new IllegalArgumentException("Underflow, step size is too small, possible loss of precision.");
+
         return IntStream.range(0, totalNumber).mapToDouble(i -> fma(i, stepSize, start)).toArray();
     }
 
