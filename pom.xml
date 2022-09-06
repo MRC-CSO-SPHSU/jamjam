@@ -13,6 +13,7 @@
         <maven.compiler.source>18</maven.compiler.source>
         <maven.compiler.target>18</maven.compiler.target>
         <compilerArgs>--enable-preview</compilerArgs>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
 
     <build>
@@ -62,6 +63,11 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>**/resources/**/*.csv</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
