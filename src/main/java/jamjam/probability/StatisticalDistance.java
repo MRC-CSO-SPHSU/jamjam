@@ -2,26 +2,28 @@ package jamjam.probability;
 
 import jamjam.aux.Utils;
 import lombok.NonNull;
+import lombok.val;
 
 import static jamjam.Sum.sum;
 import static jamjam.aux.Utils.trim;
 import static java.lang.StrictMath.log10;
 
-public class StatisticalDistance{
+public class StatisticalDistance {
 
     /**
      * Calculates relative entropy of two discrete probability distributions
+     *
      * @param referenceDistribution The distribution to be compared to.
-     * @param actualDistribution The actual discrete probability distribution presented as an array of values that
-     *                           represent probabilities of outcomes.
+     * @param actualDistribution    The actual discrete probability distribution presented as an array of values that
+     *                              represent probabilities of outcomes.
      * @return Entropy value.
      * @implSpec Trimming of every element via {@link Utils#trim(double)} in the sum is a must here. In addition, one
-     *           more trim is applied at the end to keep the actual value non-negative as it has to be by definition.
-     *           That makes the returned value biased, but this bias is consistent and should not significantly affect
-     *           the outcome.
+     * more trim is applied at the end to keep the actual value non-negative as it has to be by definition.
+     * That makes the returned value biased, but this bias is consistent and should not significantly affect
+     * the outcome.
      */
-    public static double KullbackLeiblerDivergence(double @NonNull [] referenceDistribution,
-                                                   double @NonNull [] actualDistribution){
+    public static double KullbackLeiblerDivergence(final double @NonNull [] referenceDistribution,
+                                                   final double @NonNull [] actualDistribution) {
 
         if (referenceDistribution.length != actualDistribution.length)
             throw new IllegalArgumentException("Distributions must have the same shape.");
@@ -34,14 +36,14 @@ public class StatisticalDistance{
 
         for (int i = 0; i < referenceDistribution.length; i++)
             if (referenceDistribution[i] < 0. || referenceDistribution[i] > 1. ||
-                    actualDistribution[i] < 0. || actualDistribution[i] > 1.)
+                actualDistribution[i] < 0. || actualDistribution[i] > 1.)
                 throw new IllegalArgumentException("Probability must be in the range [0; 1].");
 
-        double[] temp = new double[actualDistribution.length];
+        val temp = new double[actualDistribution.length];
 
         for (int outcomeId = 0; outcomeId < actualDistribution.length; outcomeId++)
             temp[outcomeId] = referenceDistribution[outcomeId] *
-                                    log10(trim(referenceDistribution[outcomeId]) / trim(actualDistribution[outcomeId]));
+                log10(trim(referenceDistribution[outcomeId]) / trim(actualDistribution[outcomeId]));
         return trim(sum(temp));
     }
 }

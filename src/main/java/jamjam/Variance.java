@@ -7,26 +7,26 @@ import org.jetbrains.annotations.Nullable;
 import static jamjam.Mean.mean;
 import static jamjam.Sum.sum;
 import static java.lang.Double.*;
-import static java.lang.Double.isInfinite;
 import static java.lang.StrictMath.abs;
 
 public class Variance {
     /**
      * Calculates the population (biased) variance. Depending on the parameters passed to the method, employs weights or
      * its mean calculated elsewhere.
-     * @param x An array with values to be processed.
-     * @param weights An array with corresponding weights, when it's {@code null} no weights provided, i.e., the all are
-     *                the same (1/N).
+     *
+     * @param x            An array with values to be processed.
+     * @param weights      An array with corresponding weights, when it's {@code null} no weights provided, i.e., the all are
+     *                     the same (1/N).
      * @param expectedMean Precalculated mean.
      * @return Population (biased) variance.
      * @throws IllegalArgumentException When the size of the sample is 1 or 0; when the array with weights differs from
      *                                  the array of values in terms of shape; when values/weights provided contain
      *                                  {@code NaN}, {@code +/-Inf} or subnormal; weights are negative.
      * @implNote If the weight value is {@code NaN} or {@code +/-Inf}, the actual value is calculated using the data
-     *           provided.
+     * provided.
      */
     public static double biasedVariance(double @NonNull [] x, double @Nullable [] weights,
-                                            double expectedMean){
+                                        double expectedMean) {
         if (valuesOutOfRange(x))
             throw new IllegalArgumentException("Array is too small or contains invalid values.");
 
@@ -34,7 +34,7 @@ public class Variance {
             throw new IllegalArgumentException("Input arrays have different lengths.");
 
         if (weights != null)
-            for (double w: weights)
+            for (double w : weights)
                 if (isNaN(w) || isInfinite(w) || w < Double.MIN_NORMAL)
                     throw new IllegalArgumentException(String.format("Value |% 6.16e| is out of expected range.", w));
 
@@ -49,8 +49,7 @@ public class Variance {
             }
             double s = sum(weights);
             return s == 1 ? sum(scratch) : sum(scratch) / s;
-        }
-        else {
+        } else {
             for (int i = 0; i < scratch.length; i++) {
                 double t = sum(x[i], -meanValue);
                 scratch[i] = t * t;
@@ -60,43 +59,44 @@ public class Variance {
     }
 
     /**
-     * Works just like {@link Variance#biasedVariance(double[],double[],double)} except weights and mean are not passed
+     * Works just like {@link Variance#biasedVariance(double[], double[], double)} except weights and mean are not passed
      * to the method.
      *
-     * @see Variance#biasedVariance(double[],double[],double)
+     * @see Variance#biasedVariance(double[], double[], double)
      */
-    public static double biasedVariance(double[] x){
+    public static double biasedVariance(double[] x) {
         return biasedVariance(x, null, NaN);
     }
 
     /**
-     * Works just like {@link Variance#biasedVariance(double[],double[],double)}, results in weighted mean.
+     * Works just like {@link Variance#biasedVariance(double[], double[], double)}, results in weighted mean.
      *
-     * @see Variance#biasedVariance(double[],double[],double)
+     * @see Variance#biasedVariance(double[], double[], double)
      */
-    public static double biasedVariance(double[] x, double[] weights){
+    public static double biasedVariance(double[] x, double[] weights) {
         return biasedVariance(x, weights, NaN);
     }
 
     /**
-     * Works just like {@link Variance#biasedVariance(double[],double[],double)}, the actual mean value is calculated
+     * Works just like {@link Variance#biasedVariance(double[], double[], double)}, the actual mean value is calculated
      * inside the method.
      *
-     * @see Variance#biasedVariance(double[],double[],double)
+     * @see Variance#biasedVariance(double[], double[], double)
      */
-    public static double biasedVariance(double[] x, double expectedMean){
+    public static double biasedVariance(double[] x, double expectedMean) {
         return biasedVariance(x, null, expectedMean);
     }
 
     /**
      * Calculates sample(unbiased) variance.
-     * @param x Provided values.
+     *
+     * @param x            Provided values.
      * @param expectedMean The value of mean calculated elsewhere.
      * @return Sample(unbiased) variance.
-     * @implNote If the weight value is {@code NaN} or {@code +/-Inf}, the actual value is calculated using the data
-     *           provided.
      * @throws IllegalArgumentException When the sample size is too small; data values are invalid, i.e., {@code NaN},
      *                                  {@code +/-Inf}, or subnormal.
+     * @implNote If the weight value is {@code NaN} or {@code +/-Inf}, the actual value is calculated using the data
+     * provided.
      **/
     public static double unbiasedVariance(double @NonNull [] x, double expectedMean) {
         if (valuesOutOfRange(x))
@@ -107,7 +107,7 @@ public class Variance {
 
         double meanValue = meanValueValidator(expectedMean, x);
 
-        for (int i = 0; i < x.length; i++){
+        for (int i = 0; i < x.length; i++) {
             t = sum(x[i], -meanValue);
             accumulator[i] = t * t;
         }
@@ -115,10 +115,10 @@ public class Variance {
     }
 
     /**
-     * Works just like {@link Variance#unbiasedVariance(double[],double)}, the actual mean value is calculated
+     * Works just like {@link Variance#unbiasedVariance(double[], double)}, the actual mean value is calculated
      * inside the method.
      *
-     * @see Variance#unbiasedVariance(double[],double)
+     * @see Variance#unbiasedVariance(double[], double)
      */
     public static double unbiasedVariance(double @NonNull [] x) {
         return unbiasedVariance(x, NaN);
