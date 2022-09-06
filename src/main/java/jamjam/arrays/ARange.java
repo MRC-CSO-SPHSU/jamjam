@@ -14,14 +14,15 @@ public class ARange {
     /**
      * Generates a range of numbers starting with {@code start}, but not including {@code stop}. The length of the step
      * is given by {@code step}.
+     *
      * @param start Starting point, included into the interval by default.
-     * @param stop End point.
-     * @param step The length if the step, can be negative.
+     * @param stop  End point.
+     * @param step  The length if the step, can be negative.
      * @return An array of {@code double} with evenly spaced points.
      * @implSpec In the case when {@code stop} falls into the range it is omitted, for instance, here a set
      * {@code start=0., stop=1., step=0.1} must end with {@code 0.9}.
      */
-    public static double[] arange(double start, double stop, double step){
+    public static double[] arange(double start, double stop, double step) {
         if (isInfinite(start) || isInfinite(stop) || isInfinite(step))
             throw new IllegalArgumentException("Parameters can't be infinite.");
         if (isNaN(start) || isNaN(stop) || isNaN(step))
@@ -29,7 +30,7 @@ public class ARange {
         if (step == 0.)
             throw new IllegalArgumentException("Zero step causes division by 0.");
 
-        if (stop < start){
+        if (stop < start) {
             if (signum(step) == 1) return new double[]{};
             else return generateRange(start, stop, step);
         } else if (stop > start) {
@@ -40,6 +41,7 @@ public class ARange {
 
     /**
      * The generalized method to generate a range.
+     *
      * @see ARange#arange(double, double, double)
      */
     static double[] generateRange(double start, double stop, double step) {
@@ -57,9 +59,10 @@ public class ARange {
 
     /**
      * The {@link ARange#arange(double, double, double)}, but the starting point defaults to 0.
+     *
      * @see ARange#arange(double, double, double)
      */
-    public static double[] arange(double stop, double step){
+    public static double[] arange(double stop, double step) {
         return arange(0, stop, step);
     }
 }

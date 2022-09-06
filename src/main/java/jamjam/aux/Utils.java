@@ -91,9 +91,10 @@ public class Utils {
      */
     public static double @Nullable [] readTestingValues(final @Nullable InputStream is) {
         if (is != null) {
+
             try (val in = new BufferedReader(new InputStreamReader(is))) {
                 val reader = StringArrayCsvReader.builder().build(in);
-                List<String> rawVal = new ArrayList<>(10000);
+                val rawVal = new ArrayList<String>(10000);
 
                 String[] next;
                 while ((next = reader.next()) != null) rawVal.add(next[0]);
@@ -114,6 +115,7 @@ public class Utils {
      * @param x Double value.
      * @return x or MIN_NORMAL.
      */
+    @Contract(pure = true)
     public static double trim(final double x) {
         return max(x, Double.MIN_NORMAL);
     }// or eps
@@ -127,8 +129,18 @@ public class Utils {
      */
     @Contract(pure = true)
     public static void lengthParity(final double @NotNull [] x, final double @NotNull [] y) {
-        if (x.length != y.length)
-            throw new ArithmeticException("Input arrays have different sizes");
+        if (x.length != y.length) throw new ArithmeticException("Input arrays have different sizes");
+    }
+
+    /**
+     * Checks if the input is suitable for mean calculation.
+     *
+     * @param x An array of doubles.
+     * @throws ArithmeticException When input contains 1 element only.
+     */
+    @Contract(pure = true)
+    public static void meanLengthCheck(final double @NonNull [] x) {
+        if (x.length < 2) throw new ArithmeticException("The size of the array has to be at least 2.");
     }
 
 }

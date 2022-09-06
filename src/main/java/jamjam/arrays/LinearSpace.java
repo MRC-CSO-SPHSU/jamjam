@@ -12,10 +12,11 @@ import static java.lang.StrictMath.fma;
 public class LinearSpace {
     /**
      * Creates {@code totalNumber} sub-intervals of the same length from {@code start} to {@code stop}.
-     * @param start Starting (leftmost) point, not included when {@code totalNumber < 1}.
-     * @param stop Stopping (rightmost) point, excluded when {@code endpointIncluded} is {@code false}, included
-     *            otherwise.
-     * @param totalNumber Total number of intervals.
+     *
+     * @param start            Starting (leftmost) point, not included when {@code totalNumber < 1}.
+     * @param stop             Stopping (rightmost) point, excluded when {@code endpointIncluded} is {@code false},
+     *                         included otherwise.
+     * @param totalNumber      Total number of intervals.
      * @param endpointIncluded A flag to include the stop point.
      * @return An array of values, an empty array, null.
      * @throws IllegalArgumentException When arguments are {@code NaN} or {@code Infinity}, the length of the interval
