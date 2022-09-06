@@ -14,7 +14,6 @@ import java.util.stream.IntStream;
 import static java.lang.StrictMath.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class SumTest extends Utils {
 
@@ -60,8 +59,7 @@ class SumTest extends Utils {
                 () -> assertEquals(Sum.sum(-0.0, -0.0), -0.0, "Doesn't follow IEEE."),
                 () -> assertEquals(Sum.sum(0.), 0., ""),
                 () -> assertEquals(Sum.sum(Math.PI), Math.PI, ""),
-                () -> assertEquals(Sum.sum(), 0., ""),
-                () -> assertThrows(NullPointerException.class, () -> Sum.sum(null), "Null check fails.")
+                () -> assertEquals(Sum.sum(), 0., "")
         );
     }
 
@@ -88,10 +86,6 @@ class SumTest extends Utils {
 
     @Test @DisplayName("Test weighted sum") void weightedSum() {
         assertAll("Should pass all basic checks, the rest is done by regular mean tests.",
-                () -> assertThrows(NullPointerException.class, () -> Sum.weightedSum(null, null),
-                        "Null input test fails."),
-                () -> assertThrows(ArithmeticException.class, () -> Sum.weightedSum(new double[2], new double[3]),
-                        "Input size comparison fails."),
                 () -> assertEquals(Sum.weightedSum(new double[]{80., 90.}, new double[]{20., 30.}), 4300.,
                         "Weighting fails."),
                 () -> assertEquals(Sum.weightedSum(new double[]{2., 2.}, new double[]{2., 2.}), 8.,
@@ -99,15 +93,11 @@ class SumTest extends Utils {
                 () -> assertEquals(0., Sum.weightedSum(new double[]{}, new double[]{}),
                         "Input size check fails."));
 
-        assertThrows(NullPointerException.class, () -> Sum.weightedSum(null, new double[]{1.0}),
-                "Null input test fails.");
         assertEquals(0.0d, Sum.weightedSum(new double[]{}, null));
 
     }
 
     @Test @DisplayName("Test cumulative sum") void cumulativeSum() {
-        assertThrows(NullPointerException.class, () -> Sum.cumulativeSum(null), "Null check fails.");
-
         assertAll("Simple sums that can be easily verified manually must work, but they don't",
                 () -> assertArrayEquals(Sum.cumulativeSum(new double[]{1., 1., 1.}), new double[]{1., 2., 3.},
                         "The trivial example fails."),
@@ -123,9 +113,6 @@ class SumTest extends Utils {
     }
 
     @Test @DisplayName("Test weighted cumulative sum") void weightedCumulativeSum() {
-        assertThrows(ArithmeticException.class, () -> Sum.weightedCumulativeSum(new double[]{1., 1.},
-                new double[]{1., 1., 1.}), "Dimension check fails.");
-
         assertArrayEquals(Sum.cumulativeSum(new double[]{1., 2., 3.}),
                 Sum.weightedCumulativeSum(new double[]{1., 2., 3.}, new double[]{1., 1., 1.}),
                 "Multiplying by a vector of 1 must give the same result as the conventional cumulative sum method.");
@@ -136,13 +123,16 @@ class SumTest extends Utils {
                 Sum.weightedCumulativeSum(new double[]{1., 2., 3.}, new double[]{2., 2., 2.}),
                 "Non-trivial weights (2) do not work.");
 
-        assertThrows(NullPointerException.class, () -> Sum.weightedCumulativeSum(null, new double[]{}));
-
-        double[] actualWeightedCumulativeSumResult = Sum.weightedCumulativeSum(new double[]{2.0d, 2.0d, 2.0d, 2.0d}, null);
+        val actualWeightedCumulativeSumResult = Sum.weightedCumulativeSum(new double[]{2.0d, 2.0d, 2.0d, 2.0d}, null);
         assertEquals(4, actualWeightedCumulativeSumResult.length);
         assertEquals(2.0d, actualWeightedCumulativeSumResult[0]);
         assertEquals(4.0d, actualWeightedCumulativeSumResult[1]);
         assertEquals(6.0d, actualWeightedCumulativeSumResult[2]);
         assertEquals(8.0d, actualWeightedCumulativeSumResult[3]);
+    }
+
+    @Test @DisplayName("Test trivial compensated sum") void trivialSum() {
+        val scratch = new double[]{2.0d, 2.0d, 2.0d, 2.0d};
+        assertEquals(8, Sum.sum(scratch));
     }
 }

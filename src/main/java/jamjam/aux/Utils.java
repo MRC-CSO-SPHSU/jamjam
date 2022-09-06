@@ -3,6 +3,9 @@ package jamjam.aux;
 import com.github.skjolber.stcsv.sa.StringArrayCsvReader;
 import lombok.NonNull;
 import lombok.val;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -18,15 +21,14 @@ import static java.lang.StrictMath.max;
 
 public class Utils {
     /**
-     * This function loops over all values in the input array and permutates them randomly.
-     * @param x An input array of doubles.
+     * This function loops over all values in the input array and permutes them randomly inplace.
+     *
+     * @param x         An input array of doubles.
      * @param generator A random generator object.
-     * @throws NullPointerException When any of the arguments is {@code null}.
-     * @implNote Based on the Fisher–Yates shuffle.
-     * @implSpec No XOR is used to keep the code readable.
+     * @implSpec Based on the modified Fisher–Yates shuffle.
+     * @implNote No XOR is used to keep the code readable.
      */
-    public static void shuffleDoubleArray(final double @NonNull [] x, final @NonNull Random generator)
-    {
+    public static void shuffleDoubleArray(final double @NonNull [] x, final @NonNull Random generator) {
         int index;
         double temp;
         if (!((x.length == 0) || (x.length == 1))) {
@@ -40,16 +42,26 @@ public class Utils {
     }
 
     /**
+     * Shuffles the elements of an array using a newly constructed RNG.
+     *
+     * @see #shuffleDoubleArray(double[], Random)
+     */
+    public static void shuffleDoubleArray(final double @NonNull [] x) {
+        shuffleDoubleArray(x, new Random());
+    }
+
+    /**
      * A decision tree that shows when a given algorithm fails.
-     * @param result A particular value returned by a given method.
-     * @param expected The expected return value of the same method.
+     *
+     * @param result        A particular value returned by a given method.
+     * @param expected      The expected return value of the same method.
      * @param relativeError *A priori* relative error expected from the method. Relevant only when both expected and
      *                      actual values both are not Inf, -Inf, or NaN.
      * @return Status value, 0 when computations are withing the margin of error, -1 when a subnormal number (underflow)
-     *         is encountered, 1 when there are unexpected values that fail the check (including -Inf, Inf, or NaN).
-     * @see  <a href="https://docs.oracle.com/cd/E60778_01/html/E60763/z4000ac020351.html">Undeflow</a>
+     * is encountered, 1 when there are unexpected values that fail the check (including -Inf, Inf, or NaN).
+     * @see <a href="https://docs.oracle.com/cd/E60778_01/html/E60763/z4000ac020351.html">Undeflow</a>
      */
-    public static int returnRelativeAccuracyStatus(double result, double expected, double relativeError){
+    public static int returnRelativeAccuracyStatus(double result, double expected, double relativeError) {
         val rNaN = Double.isNaN(result);
         val eNaN = Double.isNaN(expected);
 
@@ -71,14 +83,15 @@ public class Utils {
 
     /**
      * An auxiliary method to read testing data from attached CSV files.
+     *
      * @param is An {@code InputStream} object, nullable.
      * @return values read from file or null.
      * @throws RuntimeException When dealing with badly formatted data.
      * @implSpec Deals only numerical values.
      */
-    public static double[] readTestingValues(InputStream is) {
+    public static double @Nullable [] readTestingValues(final @Nullable InputStream is) {
         if (is != null) {
-            try (val in = new BufferedReader(new InputStreamReader(is))){
+            try (val in = new BufferedReader(new InputStreamReader(is))) {
                 val reader = StringArrayCsvReader.builder().build(in);
                 List<String> rawVal = new ArrayList<>(10000);
 
@@ -97,10 +110,25 @@ public class Utils {
 
     /**
      * Checks if the value is positive and normal, returns the value itself or {@code MIN_NORMAL} when the check fails.
+     *
      * @param x Double value.
      * @return x or MIN_NORMAL.
      */
-    public static double trim(double x){
+    public static double trim(final double x) {
         return max(x, Double.MIN_NORMAL);
+    }// or eps
+
+    /**
+     * Compares lengths of two arrays.
+     *
+     * @param x The reference array.
+     * @param y The other array for comparison.
+     * @throws ArithmeticException when length do not match.
+     */
+    @Contract(pure = true)
+    public static void lengthParity(final double @NotNull [] x, final double @NotNull [] y) {
+        if (x.length != y.length)
+            throw new ArithmeticException("Input arrays have different sizes");
     }
+
 }
