@@ -1,5 +1,7 @@
 package jamjam;
 
+import jdk.incubator.vector.DoubleVector;
+import jdk.incubator.vector.VectorSpecies;
 import lombok.NonNull;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
@@ -13,6 +15,9 @@ import static java.util.stream.IntStream.range;
 
 @SuppressWarnings("unused")
 public class Sum {
+
+    static final VectorSpecies<Double> SPECIES = DoubleVector.SPECIES_256;
+
     /**
      * Implements a compensated summation algorithm to reduce accumulated error.
      *
@@ -52,13 +57,41 @@ public class Sum {
      * @return sum, -Inf, Inf, or NaN.
      * @implNote Returns Inf or -Inf in the case of overflow, NaN if the original data contains one, NaN if there is an
      * undefined operation such as Infinity - Infinity as per Java specification.
+     * @implSpec Early benchmarks reveal that employing {@link jdk.incubator.vector} becomes beneficial for vector
+     * elementwise multiplications when the size of arrays reaches {@code ~5000}
      * @see <a href="https://doi.org/10.1007/s00607-005-0139-x">A Generalized Kahan-Babuška-Summation-Algorithm</a>
      */
     public static double weightedSum(final double @NonNull [] x, final double @Nullable [] weights) {
-        if (weights != null)
+        if (weights != null) {
             lengthParity(x, weights);
+            if (x.length <= 5000) return sum(range(0, x.length).mapToDouble(i -> x[i] * weights[i]).toArray());
+            else return vectorWeightedSum(x, weights);
+        } else return sum(x);
+    }
 
-        return sum(weights == null ? x : range(0, x.length).mapToDouble(i -> x[i] * weights[i]).toArray());
+    /**
+     * A vectorized compensated sum, suitable for large sized vectors.
+     *
+     * @param x       A vector of values.
+     * @param weights Corresponding weights
+     * @return The resulting compensated sum.
+     */
+    private static double vectorWeightedSum(final double @NonNull [] x, final double @NonNull [] weights) {
+        int i = 0;
+
+        val upperBound = SPECIES.loopBound(x.length);
+        val r = new double[x.length];
+        DoubleVector vx, vw, vr;
+        for (; i < upperBound; i += SPECIES.length()) {
+            vx = DoubleVector.fromArray(SPECIES, x, i);
+            vw = DoubleVector.fromArray(SPECIES, weights, i);
+            vr = vx.mul(vw);
+            vr.intoArray(r, i);
+        }
+
+        for (; i < x.length; i++) r[i] = x[i] * weights[i];
+
+        return sum(r);
     }
 
     /**
