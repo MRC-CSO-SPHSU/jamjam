@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
+import static jamjam.arrays.Product.productNoCheck;
 import static jamjam.aux.Utils.lengthParity;
 import static java.lang.StrictMath.abs;
 import static java.util.stream.IntStream.range;
@@ -35,16 +36,11 @@ public class Sum {
             case 1:
                 return x[0];
             default:
-                var sum = x[0]; // fixme replace with static class?
-                var corrector = 0.d;
-                double temp;
-                for (int i = 1; i < x.length; i++) {
-                    temp = sum + x[i];
-                    corrector -= abs(sum) >= abs(x[i]) ? ((sum - temp) + x[i]) : ((x[i] - temp) + sum);
-                    sum = temp;
-                }
-                return sum - corrector;
+                val acc = new Accumulator();
+                acc.sum(x);
+                return acc.getSum();
         }
+    }
     }
 
     /**
@@ -57,41 +53,13 @@ public class Sum {
      * @return sum, -Inf, Inf, or NaN.
      * @implNote Returns Inf or -Inf in the case of overflow, NaN if the original data contains one, NaN if there is an
      * undefined operation such as Infinity - Infinity as per Java specification.
-     * @implSpec Early benchmarks reveal that employing {@link jdk.incubator.vector} becomes beneficial for vector
-     * elementwise multiplications when the size of arrays reaches {@code ~5000}
      * @see <a href="https://doi.org/10.1007/s00607-005-0139-x">A Generalized Kahan-Babuška-Summation-Algorithm</a>
      */
     public static double weightedSum(final double @NonNull [] x, final double @Nullable [] weights) {
         if (weights != null) {
             lengthParity(x, weights);
-            if (x.length <= 5000) return sum(range(0, x.length).mapToDouble(i -> x[i] * weights[i]).toArray());
-            else return vectorWeightedSum(x, weights);
+            return sum(productNoCheck(x, weights));
         } else return sum(x);
-    }
-
-    /**
-     * A vectorized compensated sum, suitable for large sized vectors.
-     *
-     * @param x       A vector of values.
-     * @param weights Corresponding weights
-     * @return The resulting compensated sum.
-     */
-    private static double vectorWeightedSum(final double @NonNull [] x, final double @NonNull [] weights) {
-        int i = 0;
-
-        val upperBound = SPECIES.loopBound(x.length);
-        val r = new double[x.length];
-        DoubleVector vx, vw, vr;
-        for (; i < upperBound; i += SPECIES.length()) {
-            vx = DoubleVector.fromArray(SPECIES, x, i);
-            vw = DoubleVector.fromArray(SPECIES, weights, i);
-            vr = vx.mul(vw);
-            vr.intoArray(r, i);
-        }
-
-        for (; i < x.length; i++) r[i] = x[i] * weights[i];
-
-        return sum(r);
     }
 
     /**
@@ -107,15 +75,15 @@ public class Sum {
             return new double[]{};
         if (x.length == 1)
             return x;
-        val cSum = new double[x.length]; // fixme replace with faster version
-        cSum[0] = x[0];
-
+        val cumulativeSum = new double[x.length];
+        cumulativeSum[0] = x[0];
+        val acc = new Accumulator();
+        acc.sum(x[0]);
         for (var i = 1; i < x.length; i++) {
-            double[] chunk = new double[i + 1];
-            System.arraycopy(x, 0, chunk, 0, i + 1);
-            cSum[i] = sum(chunk);
+            acc.sum(x[i]);
+            cumulativeSum[i] = acc.getSum();
         }
-        return cSum;
+        return cumulativeSum;
     }
 
     /**
@@ -137,7 +105,7 @@ public class Sum {
     /**
      * A complementary class for the cases when the sum is accumulated over time rather that calculated immediately.
      */
-    public class Accumulator {
+    public static class Accumulator {
 
         /**
          * The conventional sum with no corrections.
@@ -151,7 +119,7 @@ public class Sum {
         private double temp;
 
         public Accumulator() {
-            uncorrectedSum = 0;
+            uncorrectedSum = -0.d;
             corrector = 0;
         }
 

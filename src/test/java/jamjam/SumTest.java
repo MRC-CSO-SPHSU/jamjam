@@ -54,17 +54,18 @@ class SumTest extends Utils {
     @DisplayName("Test summation and function sanity")
     void input() {
         assertAll("KBK summation scheme works incorrectly.",
-            () -> assertEquals(Sum.sum(1, 1e100, 1, -1e100), 2.0, "Incorrect rounding-off."),
-            () -> assertEquals(Sum.sum(IntStream.range(1, 11).mapToDouble(i -> 1.0 * i).toArray()), 55.0,
+            () -> assertEquals(2.0, Sum.sum(1, 1e100, 1, -1e100), "Incorrect rounding-off."),
+            () -> assertEquals(55.0, Sum.sum(IntStream.range(1, 11).mapToDouble(i -> 1.0 * i).toArray()),
                 "Correct summation fails."),
             () -> assertEquals(Sum.sum(7, 8, 9), Sum.sum(8, 9, 7), "Permutation affects the answer."),
             () -> assertEquals(Sum.sum(IntStream.range(1, 11).mapToDouble(i -> 1.0 * i).toArray()),
                 Sum.sum(IntStream.iterate(11 - 1, i -> i - 1).limit(10).mapToDouble(i -> 1.0 * i).toArray()),
                 "Inverse order of elements breaks the sum."),
-            () -> assertEquals(Sum.sum(-0.0, -0.0), -0.0, "Doesn't follow IEEE."),
-            () -> assertEquals(Sum.sum(0.), 0., ""),
-            () -> assertEquals(Sum.sum(Math.PI), Math.PI, ""),
-            () -> assertEquals(Sum.sum(), 0., "")
+            () -> assertEquals(-0.0, Sum.sum(-0.0, -0.0), "Doesn't follow IEEE."),
+            () -> assertEquals(0., Sum.sum(0.), "Zero must return zero."),
+            () -> assertEquals(-0., Sum.sum(-0.), "Zero must return zero."),
+            () -> assertEquals(Math.PI, Sum.sum(Math.PI), "A single element array returns its only value."),
+            () -> assertEquals(0., Sum.sum(), "Empty array returns zero.")
         );
     }
 
@@ -149,5 +150,14 @@ class SumTest extends Utils {
     void trivialSum() {
         val scratch = new double[]{2.0d, 2.0d, 2.0d, 2.0d};
         assertEquals(8, Sum.sum(scratch));
+    }
+
+    @Test
+    void accumulator() {
+        val a = new Sum.Accumulator();
+        val b = new Sum.Accumulator();
+        a.sum(1.);
+        b.sum(2.);
+        assertNotEquals(a.getSum(), b.getSum());
     }
 }
