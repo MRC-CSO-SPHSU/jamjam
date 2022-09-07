@@ -116,8 +116,8 @@ class SumTest extends Utils {
             () -> assertArrayEquals(Sum.cumulativeSum(new double[]{1., 2., 3.}), new double[]{1., 3., 6.},
                 ""));
         assertAll("Basic arrays of length 0, 1, 2 should pass the test, but they fail.",
-            () -> assertArrayEquals(Sum.cumulativeSum(new double[]{}), new double[]{},
-                "Empty input results in empty output."),
+            () -> assertArrayEquals(Sum.cumulativeSum(new double[]{}), new double[]{0.},
+                "Empty input results in an array with a single zero."),
             () -> assertArrayEquals(Sum.cumulativeSum(new double[]{Math.PI}), new double[]{Math.PI},
                 "An array of size 1 doesn't return a singular value(array)"),
             () -> assertArrayEquals(Sum.cumulativeSum(new double[]{Math.PI, Math.PI}), new double[]{Math.PI, 2 * Math.PI},
