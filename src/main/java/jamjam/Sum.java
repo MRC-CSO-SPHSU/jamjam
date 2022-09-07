@@ -41,7 +41,7 @@ public class Sum {
                 return acc.getSum();
         }
     }
-    }
+
 
     /**
      * Implements a weighted version of the compensated summation algorithm {@link #sum(double[])}. When weights are
