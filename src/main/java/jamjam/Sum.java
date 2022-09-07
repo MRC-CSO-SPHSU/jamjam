@@ -137,16 +137,23 @@ public class Sum {
     /**
      * A complementary class for the cases when the sum is accumulated over time rather that calculated immediately.
      */
-    public static class Accumulator {
+    public class Accumulator {
 
         /**
          * The conventional sum with no corrections.
          */
-        private double uncorrectedSum = 0;
+        private double uncorrectedSum;
         /**
          * The first order error corrector.
          */
-        private double corrector = 0;
+        private double corrector;
+
+        private double temp;
+
+        public Accumulator() {
+            uncorrectedSum = 0;
+            corrector = 0;
+        }
 
         /**
          * Calculates both the conventional sum and the corrector.
@@ -154,7 +161,7 @@ public class Sum {
          * @param x A double to be added to the sum.
          */
         public void sum(final double x) {
-            double temp = uncorrectedSum + x;
+            temp = uncorrectedSum + x;
             corrector -= abs(uncorrectedSum) >= abs(x) ? ((uncorrectedSum - temp) + x) : ((x - temp) + uncorrectedSum);
             uncorrectedSum = temp;
         }
@@ -183,6 +190,5 @@ public class Sum {
             corrector = 0;
             uncorrectedSum = 0;
         }
-
     }
 }
