@@ -72,7 +72,7 @@ public class Sum {
      */
     public static double @NotNull [] cumulativeSum(final double @NonNull [] x) {
         if (x.length == 0)
-            return new double[]{};
+            return new double[]{0. };
         if (x.length == 1)
             return x;
         val cumulativeSum = new double[x.length];
