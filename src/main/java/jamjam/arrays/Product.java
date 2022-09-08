@@ -33,7 +33,7 @@ public class Product {
      * elementwise multiplications when the size of arrays reaches {@code ~5000}
      */
     public static double @NonNull [] productNoCheck(double @NonNull [] x, double @NonNull [] y) {
-        if (x.length <= 5000) {
+        if (x.length >= 5000) {
             int i = 0;
 
             val upperBound = SPECIES.loopBound(x.length);
