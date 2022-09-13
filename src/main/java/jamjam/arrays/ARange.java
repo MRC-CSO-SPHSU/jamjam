@@ -1,5 +1,6 @@
 package jamjam.arrays;
 
+import lombok.NonNull;
 import lombok.val;
 
 import java.util.stream.IntStream;
@@ -19,10 +20,11 @@ public class ARange {
      * @param stop  End point.
      * @param step  The length if the step, can be negative.
      * @return An array of {@code double} with evenly spaced points.
+     * @throws IllegalArgumentException when input parameters are infinite or NaNs, or {@code step} is zero.
      * @implSpec In the case when {@code stop} falls into the range it is omitted, for instance, here a set
      * {@code start=0., stop=1., step=0.1} must end with {@code 0.9}.
      */
-    public static double[] arange(double start, double stop, double step) {
+    public static double @NonNull [] arange(final double start, final double stop, final double step) {
         if (isInfinite(start) || isInfinite(stop) || isInfinite(step))
             throw new IllegalArgumentException("Parameters can't be infinite.");
         if (isNaN(start) || isNaN(stop) || isNaN(step))
@@ -42,9 +44,11 @@ public class ARange {
     /**
      * The generalized method to generate a range.
      *
+     * @throws IllegalArgumentException  when the length of the range is infinite.
+     * @throws IndexOutOfBoundsException when the number of intervals exceeds {@code Integer.MAX_VALUE}.
      * @see ARange#arange(double, double, double)
      */
-    static double[] generateRange(double start, double stop, double step) {
+    public static double @NonNull [] generateRange(final double start, final double stop, final double step) {
         val totalLength = stop - start;
         if (isInfinite(totalLength))
             throw new IllegalArgumentException("The interval length is too long to fit into double.");
@@ -62,7 +66,7 @@ public class ARange {
      *
      * @see ARange#arange(double, double, double)
      */
-    public static double[] arange(double stop, double step) {
+    public static double @NonNull [] arange(final double stop, final double step) {
         return arange(0, stop, step);
     }
 }

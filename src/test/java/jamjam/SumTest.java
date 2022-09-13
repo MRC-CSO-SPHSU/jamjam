@@ -2,6 +2,7 @@ package jamjam;
 
 import jamjam.aux.Utils;
 
+import jdk.incubator.vector.DoubleVector;
 import lombok.val;
 
 import org.junit.jupiter.api.Disabled;
@@ -9,9 +10,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
+import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import static java.lang.StrictMath.*;
+import static jdk.incubator.vector.DoubleVector.SPECIES_PREFERRED;
+import static jdk.incubator.vector.DoubleVector.broadcast;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -65,8 +69,8 @@ class SumTest extends Utils {
             () -> assertEquals(0., Sum.sum(0.), "Zero must return zero."),
             () -> assertEquals(-0., Sum.sum(-0.), "Zero must return zero."),
             () -> assertEquals(Math.PI, Sum.sum(Math.PI), "A single element array returns its only value."),
-            () -> assertEquals(0., Sum.sum(), "Empty array returns zero.")
-        );
+            () -> assertEquals(0., Sum.sum(new double[]{}), "Empty array returns zero."),
+            () -> assertThrows(NullPointerException.class, () -> Sum.sum((double[]) null)));
     }
 
     /**
@@ -78,7 +82,7 @@ class SumTest extends Utils {
     @DisplayName("Test accuracy of summation and stability after permutations")
     void integralSum() {
         Random generator = new Random(0);
-        val NLIM = 50000000;
+        val NLIM = 50_000_000;
         val startPoint = 0.;
         val endPoint = Math.PI;
         val dx = (endPoint - startPoint) / NLIM;
@@ -105,35 +109,43 @@ class SumTest extends Utils {
 
         assertEquals(0.0d, Sum.weightedSum(new double[]{}, null));
 
+        assertThrows(NullPointerException.class, () -> Sum.weightedSum(null, null));
+
     }
 
     @Test
     @DisplayName("Test cumulative sum")
     void cumulativeSum() {
         assertAll("Simple sums that can be easily verified manually must work, but they don't",
-            () -> assertArrayEquals(Sum.cumulativeSum(new double[]{1., 1., 1.}), new double[]{1., 2., 3.},
+            () -> assertArrayEquals(new double[]{1., 2., 3.}, Sum.cumulativeSum(1., 1., 1.),
                 "The trivial example fails."),
-            () -> assertArrayEquals(Sum.cumulativeSum(new double[]{1., 2., 3.}), new double[]{1., 3., 6.},
+            () -> assertArrayEquals(new double[]{1., 3., 6.}, Sum.cumulativeSum(1., 2., 3.),
                 ""));
         assertAll("Basic arrays of length 0, 1, 2 should pass the test, but they fail.",
-            () -> assertArrayEquals(Sum.cumulativeSum(new double[]{}), new double[]{0.},
+            () -> assertArrayEquals(new double[]{0.}, Sum.cumulativeSum(),
                 "Empty input results in an array with a single zero."),
-            () -> assertArrayEquals(Sum.cumulativeSum(new double[]{Math.PI}), new double[]{Math.PI},
+            () -> assertArrayEquals(new double[]{Math.PI}, Sum.cumulativeSum(Math.PI),
                 "An array of size 1 doesn't return a singular value(array)"),
-            () -> assertArrayEquals(Sum.cumulativeSum(new double[]{Math.PI, Math.PI}), new double[]{Math.PI, 2 * Math.PI},
+            () -> assertArrayEquals(new double[]{Math.PI, 2 * Math.PI},
+                Sum.cumulativeSum(Math.PI, Math.PI),
                 "A smoke test for an array of size 2 or more doesn't work."));
+
+        assertThrows(NullPointerException.class, () -> Sum.sum((double[]) null));
+        assertArrayEquals(new double[]{0.}, Sum.cumulativeSum());
+        assertArrayEquals(new double[]{0.}, Sum.cumulativeSum(0.));
+        assertArrayEquals(new double[]{0, 1, 3, 6, 10, 15}, Sum.cumulativeSum(0, 1, 2, 3, 4, 5));
     }
 
     @Test
     @DisplayName("Test weighted cumulative sum")
     void weightedCumulativeSum() {
-        assertArrayEquals(Sum.cumulativeSum(new double[]{1., 2., 3.}),
+        assertArrayEquals(Sum.cumulativeSum(1., 2., 3.),
             Sum.weightedCumulativeSum(new double[]{1., 2., 3.}, new double[]{1., 1., 1.}),
             "Multiplying by a vector of 1 must give the same result as the conventional cumulative sum method.");
-        assertArrayEquals(Sum.cumulativeSum(new double[]{0., 0., 0.}),
+        assertArrayEquals(Sum.cumulativeSum(0., 0., 0.),
             Sum.weightedCumulativeSum(new double[]{1., 2., 3.}, new double[]{0., 0., 0.}),
             "Zero weights do not zero the sum.");
-        assertArrayEquals(Sum.cumulativeSum(new double[]{2., 4., 6.}),
+        assertArrayEquals(Sum.cumulativeSum(2., 4., 6.),
             Sum.weightedCumulativeSum(new double[]{1., 2., 3.}, new double[]{2., 2., 2.}),
             "Non-trivial weights (2) do not work.");
 
@@ -143,6 +155,8 @@ class SumTest extends Utils {
         assertEquals(4.0d, actualWeightedCumulativeSumResult[1]);
         assertEquals(6.0d, actualWeightedCumulativeSumResult[2]);
         assertEquals(8.0d, actualWeightedCumulativeSumResult[3]);
+
+        assertThrows(NullPointerException.class, () -> Sum.weightedCumulativeSum(null, null));
     }
 
     @Test
@@ -159,5 +173,67 @@ class SumTest extends Utils {
         a.sum(1.);
         b.sum(2.);
         assertNotEquals(a.getSum(), b.getSum());
+
+        val scratch = new Sum.Accumulator();
+        scratch.sum(1);
+        assertEquals(1, scratch.getSum());
+
+        scratch.sum();
+        assertEquals(1, scratch.getSum());
+
+        assertThrows(NullPointerException.class, () -> scratch.sum((double[]) null));
+        assertThrows(NullPointerException.class, () -> scratch.sum((DoubleStream) null));
+
+        scratch.flush();
+        assertEquals(-0., scratch.getSum());
+    }
+
+    @Test
+    void vectorSum() {
+        val testArray = new DoubleVector[]{broadcast(SPECIES_PREFERRED, 1), broadcast(SPECIES_PREFERRED, 1e100),
+            broadcast(SPECIES_PREFERRED, 1), broadcast(SPECIES_PREFERRED, -1e100)};
+        var expected = broadcast(SPECIES_PREFERRED, 2);
+
+        assertEquals(expected, Sum.sum(testArray));
+
+        expected = broadcast(SPECIES_PREFERRED, 55);
+        assertEquals(expected, Sum.sum(broadcast(SPECIES_PREFERRED, 1), broadcast(SPECIES_PREFERRED, 2),
+            broadcast(SPECIES_PREFERRED, 3), broadcast(SPECIES_PREFERRED, 4), broadcast(SPECIES_PREFERRED, 5),
+            broadcast(SPECIES_PREFERRED, 6), broadcast(SPECIES_PREFERRED, 7), broadcast(SPECIES_PREFERRED, 8),
+            broadcast(SPECIES_PREFERRED, 9), broadcast(SPECIES_PREFERRED, 10)));
+
+        assertEquals(Sum.sum(broadcast(SPECIES_PREFERRED, 7), broadcast(SPECIES_PREFERRED, 8),
+            broadcast(SPECIES_PREFERRED, 9)), Sum.sum(broadcast(SPECIES_PREFERRED, 8),
+            broadcast(SPECIES_PREFERRED, 9), broadcast(SPECIES_PREFERRED, 7)));
+
+
+        assertEquals(Sum.sum(broadcast(SPECIES_PREFERRED, 11), broadcast(SPECIES_PREFERRED, 10),
+                broadcast(SPECIES_PREFERRED, 9), broadcast(SPECIES_PREFERRED, 8), broadcast(SPECIES_PREFERRED, 7),
+                broadcast(SPECIES_PREFERRED, 6), broadcast(SPECIES_PREFERRED, 5), broadcast(SPECIES_PREFERRED, 4),
+                broadcast(SPECIES_PREFERRED, 3), broadcast(SPECIES_PREFERRED, 2), broadcast(SPECIES_PREFERRED, 1)),
+            Sum.sum(broadcast(SPECIES_PREFERRED, 1), broadcast(SPECIES_PREFERRED, 2),
+                broadcast(SPECIES_PREFERRED, 3), broadcast(SPECIES_PREFERRED, 4), broadcast(SPECIES_PREFERRED, 5),
+                broadcast(SPECIES_PREFERRED, 6), broadcast(SPECIES_PREFERRED, 7), broadcast(SPECIES_PREFERRED, 8),
+                broadcast(SPECIES_PREFERRED, 9), broadcast(SPECIES_PREFERRED, 10), broadcast(SPECIES_PREFERRED, 11)));
+
+
+        assertEquals(broadcast(SPECIES_PREFERRED, -0.d),
+            Sum.sum(broadcast(SPECIES_PREFERRED, -0.d), broadcast(SPECIES_PREFERRED, -0.d)));
+
+        assertEquals(broadcast(SPECIES_PREFERRED, 0.d), Sum.sum(broadcast(SPECIES_PREFERRED, 0.d)));
+        assertEquals(broadcast(SPECIES_PREFERRED, -0.d), Sum.sum(broadcast(SPECIES_PREFERRED, -0.d)));
+        assertEquals(broadcast(SPECIES_PREFERRED, Math.PI), Sum.sum(broadcast(SPECIES_PREFERRED, Math.PI)));
+
+        assertEquals(broadcast(SPECIES_PREFERRED, 0), Sum.sum(new DoubleVector[]{}));
+        assertEquals(broadcast(SPECIES_PREFERRED, 0), Sum.sum(new DoubleVector[]{}));
+
+        assertThrows(NullPointerException.class, () -> Sum.sum((DoubleVector[]) null));
+    }
+
+    @Test
+    void streamSum() {
+        DoubleStream x = DoubleStream.of(1, 2, 4);
+        assertEquals(7, Sum.sum(x));
+        assertThrows(NullPointerException.class, () -> Sum.sum((DoubleStream) null));
     }
 }

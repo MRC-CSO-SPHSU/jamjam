@@ -1,29 +1,31 @@
 package jamjam;
 
 import jdk.incubator.vector.DoubleVector;
-import jdk.incubator.vector.VectorSpecies;
+import jdk.incubator.vector.VectorMask;
 import lombok.NonNull;
 import lombok.val;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
-import static jamjam.arrays.Product.productNoCheck;
+import static jamjam.arrays.Product.product;
 import static jamjam.aux.Utils.lengthParity;
 import static java.lang.StrictMath.abs;
-import static java.util.stream.IntStream.range;
+import static jdk.incubator.vector.DoubleVector.SPECIES_PREFERRED;
+import static jdk.incubator.vector.DoubleVector.broadcast;
+import static jdk.incubator.vector.VectorOperators.GE;
 
 @SuppressWarnings("unused")
 public class Sum {
-
-    static final VectorSpecies<Double> SPECIES = DoubleVector.SPECIES_256;
 
     /**
      * Implements a compensated summation algorithm to reduce accumulated error.
      *
      * @param x An array of doubles.
      * @return total sum, -Inf, Inf, or NaN.
+     * @throws NullPointerException When the input is {@code null}.
      * @implSpec Uses Kahan-Babushka-Neumaier scheme (scalar), potentially the slowest one available.
      * @implNote Returns Inf or -Inf in the case of overflow, NaN if the original data contains one, NaN if there is an
      * undefined operation such as Infinity - Infinity as per Java specification.
@@ -36,12 +38,53 @@ public class Sum {
             case 1:
                 return x[0];
             default:
-                val acc = new Accumulator();
-                acc.sum(x);
-                return acc.getSum();
+                var uncorrectedSum = -0.d;
+                var corrector = 0.d;
+                double temp;
+                for (double v : x) {
+                    temp = uncorrectedSum + v;
+                    corrector -= abs(uncorrectedSum) >= abs(v) ?
+                        ((uncorrectedSum - temp) + v) : ((v - temp) + uncorrectedSum);
+                    uncorrectedSum = temp;
+                }
+                return uncorrectedSum - corrector;
         }
     }
 
+    /**
+     * @param x A stream of doubles.
+     * @see #sum(double...)
+     */
+    public static double sum(final @NonNull DoubleStream x) {
+        val acc = new Accumulator();
+        x.forEach(acc::sum);
+        return acc.getSum();
+    }
+
+
+    /**
+     * A vectorized compensated sum.
+     *
+     * @param values A conventional array of {@link DoubleVector}.
+     * @return a {@link DoubleVector} of the same size with all the sums.
+     * @throws NullPointerException When the input is {@code null}.
+     * @implSpec All summation is done line-wise.
+     */
+    public static @NonNull DoubleVector sum(final DoubleVector @NonNull ... values) {
+        if (values.length == 0) return broadcast(SPECIES_PREFERRED, 0.d);
+        var uncorrectedSum = broadcast(SPECIES_PREFERRED, -0.d);
+        var corrector = broadcast(SPECIES_PREFERRED, 0.d);
+        var temp = broadcast(SPECIES_PREFERRED, 0.d);
+        VectorMask<Double> mask;
+
+        for (var v : values) {
+            temp = uncorrectedSum.add(v);
+            mask = uncorrectedSum.abs().compare(GE, v.abs());
+            corrector = corrector.sub(v.blend(uncorrectedSum, mask).sub(temp).add(v.blend(uncorrectedSum, mask.not())));
+            uncorrectedSum = temp;
+        }
+        return uncorrectedSum.sub(corrector);
+    }
 
     /**
      * Implements a weighted version of the compensated summation algorithm {@link #sum(double[])}. When weights are
@@ -51,14 +94,15 @@ public class Sum {
      * @param x       An array of doubles.
      * @param weights An array with weights of values, nullable.
      * @return sum, -Inf, Inf, or NaN.
+     * @throws NullPointerException When the {@code x} vector is {@code null}.
      * @implNote Returns Inf or -Inf in the case of overflow, NaN if the original data contains one, NaN if there is an
      * undefined operation such as Infinity - Infinity as per Java specification.
      * @see <a href="https://doi.org/10.1007/s00607-005-0139-x">A Generalized Kahan-Babuška-Summation-Algorithm</a>
      */
     public static double weightedSum(final double @NonNull [] x, final double @Nullable [] weights) {
         if (weights != null) {
-            lengthParity(x, weights);
-            return sum(productNoCheck(x, weights));
+            lengthParity(x.length, weights.length);
+            return sum(product(x, weights));
         } else return sum(x);
     }
 
@@ -68,22 +112,24 @@ public class Sum {
      *
      * @param x An array of initial values.
      * @return An array of cumulative sums.
+     * @throws NullPointerException When the input is {@code null}.
      * @see #sum(double[])
      */
-    public static double @NotNull [] cumulativeSum(final double @NonNull [] x) {
-        if (x.length == 0)
-            return new double[]{0. };
-        if (x.length == 1)
-            return x;
-        val cumulativeSum = new double[x.length];
-        cumulativeSum[0] = x[0];
-        val acc = new Accumulator();
-        acc.sum(x[0]);
-        for (var i = 1; i < x.length; i++) {
-            acc.sum(x[i]);
-            cumulativeSum[i] = acc.getSum();
+    public static double @NonNull [] cumulativeSum(final double @NonNull ... x) {
+        switch (x.length) {
+            case 0:
+                return new double[]{0.};
+            case 1:
+                return x.clone();
+            default:
+                val cumulativeSum = new double[x.length];
+                val acc = new Accumulator();
+                for (var i = 0; i < x.length; i++) {
+                    acc.sum(x[i]);
+                    cumulativeSum[i] = acc.getSum();
+                }
+                return cumulativeSum;
         }
-        return cumulativeSum;
     }
 
     /**
@@ -93,13 +139,58 @@ public class Sum {
      * @param x       Actual values.
      * @param weights Corresponding weights.
      * @return An array of weighted cumulative sums.
+     * @throws NullPointerException When the {@code x} vector is {@code null}.
      */
     public static double @NonNull [] weightedCumulativeSum(final double @NonNull [] x,
                                                            final double @Nullable [] weights) {
-        if (weights != null)
-            lengthParity(x, weights);
+        if (weights != null) {
+            lengthParity(x.length, weights.length);
+            return cumulativeSum(product(x, weights));
+        } else return cumulativeSum(x);
+    }
 
-        return cumulativeSum(weights == null ? x : range(0, x.length).mapToDouble(i -> x[i] * weights[i]).toArray());
+    /**
+     * Adds {@code shiftValue} to every value of {@code x}.
+     *
+     * @param x          An array of doubles.
+     * @param shiftValue The value to be shifted by.
+     * @return A copy of {@code x} with shifted values.
+     */
+    public static double @NonNull [] broadcastAdd(final double @NonNull [] x, final double shiftValue) {
+        val scratch = Arrays.copyOf(x, x.length);
+        IntStream.range(0, x.length).forEach(i -> scratch[i] += shiftValue);
+        return scratch;
+    }
+
+    /**
+     * Calculates the sum of every element of {@code x} and {@code shiftValue.}
+     *
+     * @param x          An array of doubles.
+     * @param shiftValue The value to be shifted by.
+     * @return A copy of {@code x} with shifted values.
+     */
+    public static double @NonNull [] broadcastSub(final double @NonNull [] x, final double shiftValue) {
+        val scratch = Arrays.copyOf(x, x.length);
+        IntStream.range(0, x.length).forEach(i -> scratch[i] -= shiftValue);
+        return scratch;
+    }
+
+    /**
+     * In-place implementation.
+     *
+     * @see #broadcastAdd(double[], double)
+     */
+    public static void broadcastAddInPlace(final double @NonNull [] x, final double shiftValue) {
+        IntStream.range(0, x.length).forEach(i -> x[i] += shiftValue);
+    }
+
+    /**
+     * In-place implementation.
+     *
+     * @see #broadcastAdd(double[], double)
+     */
+    public static void broadcastSubInPlace(final double @NonNull [] x, final double shiftValue) {
+        IntStream.range(0, x.length).forEach(i -> x[i] -= shiftValue);
     }
 
     /**
@@ -114,7 +205,7 @@ public class Sum {
         /**
          * The first order error corrector.
          */
-        private double corrector;
+        private double corrector; // todo keep data in vectors and do return v.sub()?
 
         private double temp;
 
@@ -138,10 +229,19 @@ public class Sum {
          * Calculates both the conventional sum and the corrector.
          *
          * @param x An array of doubles to be added to the sum.
+         * @throws NullPointerException When the input is {@code null}.
          */
         public void sum(final double @NonNull ... x) {
             if (x.length == 0) return;
             Arrays.stream(x).forEach(this::sum);
+        }
+
+        /**
+         * @param x A stream of doubles.
+         * @see #sum(double...)
+         */
+        public void sum(final @NonNull DoubleStream x) {
+            x.forEach(this::sum);
         }
 
         /**
@@ -156,7 +256,7 @@ public class Sum {
          */
         public void flush() {
             corrector = 0;
-            uncorrectedSum = 0;
+            uncorrectedSum = -0.d;
         }
     }
 }

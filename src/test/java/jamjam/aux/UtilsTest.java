@@ -1,19 +1,15 @@
 package jamjam.aux;
 
-import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
-
 import lombok.val;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 class UtilsTest {
     @Test
@@ -81,7 +77,7 @@ class UtilsTest {
     @Test
     @DisplayName("Test data reading")
     void readTestingValues() {
-        val is = getClass().getClassLoader().getResourceAsStream("lew.csv");
+        val is = getClass().getClassLoader().getResourceAsStream("nist/lew.csv");
         val dataColumn = Utils.readTestingValues(is);
 
         assert dataColumn != null;
@@ -107,5 +103,25 @@ class UtilsTest {
             () -> assertEquals(Utils.trim(0), Double.MIN_NORMAL, "Comparison to 0 fails."),
             () -> assertEquals(Utils.trim(-1), Double.MIN_NORMAL, "Comparison to -1 fails."),
             () -> assertEquals(Utils.trim(1), 1, "Comparison to 1 fails."));
+    }
+
+    @Test
+    void momentLengthCheck() {
+        assertThrows(IllegalArgumentException.class, () -> Utils.momentLengthCheck(new double[]{1}));
+        assertThrows(NullPointerException.class, () -> Utils.momentLengthCheck(null));
+    }
+
+    @Test
+    void testShuffleDoubleArray1() {
+        var scratch = new double[]{1, 2, 3};
+        Utils.shuffleDoubleArray(scratch);
+        assertNotSame(new double[]{1, 2, 3}, scratch);
+
+        assertThrows(NullPointerException.class, () -> Utils.shuffleDoubleArray(null));
+    }
+
+    @Test
+    void lengthParity() {
+        assertThrows(IllegalArgumentException.class, () -> Utils.lengthParity(new double[]{1}.length, new double[]{1, 2}.length));
     }
 }

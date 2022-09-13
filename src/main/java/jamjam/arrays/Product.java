@@ -1,53 +1,74 @@
 package jamjam.arrays;
 
 import jdk.incubator.vector.DoubleVector;
-import jdk.incubator.vector.VectorSpecies;
 import lombok.NonNull;
 import lombok.val;
 
+import java.util.Arrays;
+
 import static jamjam.aux.Utils.lengthParity;
 import static java.util.stream.IntStream.range;
+import static jdk.incubator.vector.DoubleVector.SPECIES_PREFERRED;
 
 public class Product {
-    static final VectorSpecies<Double> SPECIES = DoubleVector.SPECIES_256;
-
-
-    /**
-     * Adds a size check.
-     *
-     * @see #productNoCheck
-     */
-    public static double @NonNull [] product(double @NonNull [] x, double @NonNull [] y) {
-        lengthParity(x, y);
-        return productNoCheck(x, y);
-    }
-
-
     /**
      * Calculates the product of two vectors.
      *
-     * @param x A vector of values.
-     * @param y Another vector.
+     * @param x1 A vector of values.
+     * @param x2 Another vector.
      * @return The resulting product,
      * @implSpec Early benchmarks reveal that employing {@link jdk.incubator.vector} becomes beneficial for vector
      * elementwise multiplications when the size of arrays reaches {@code ~5000}
      */
-    public static double @NonNull [] productNoCheck(double @NonNull [] x, double @NonNull [] y) {
-        if (x.length >= 5000) {
+    public static double @NonNull [] product(final double @NonNull [] x1, final double @NonNull [] x2) {
+        lengthParity(x1.length, x2.length);
+        if (x1.length >= 5000) {
             int i = 0;
 
-            val upperBound = SPECIES.loopBound(x.length);
-            val r = new double[x.length];
+            val upperBound = SPECIES_PREFERRED.loopBound(x1.length);
+            val r = new double[x1.length];
             DoubleVector vx, vw, vr;
-            for (; i < upperBound; i += SPECIES.length()) {
-                vx = DoubleVector.fromArray(SPECIES, x, i);
-                vw = DoubleVector.fromArray(SPECIES, y, i);
+            for (; i < upperBound; i += SPECIES_PREFERRED.length()) {
+                vx = DoubleVector.fromArray(SPECIES_PREFERRED, x1, i);
+                vw = DoubleVector.fromArray(SPECIES_PREFERRED, x2, i);
                 vr = vx.mul(vw);
                 vr.intoArray(r, i);
             }
 
-            for (; i < x.length; i++) r[i] = x[i] * y[i];
+            for (; i < x1.length; i++) r[i] = x1[i] * x2[i];
             return r;
-        } else return range(0, x.length).mapToDouble(i -> x[i] * y[i]).toArray();
+        } else return range(0, x1.length).mapToDouble(i -> x1[i] * x2[i]).toArray();
+    }
+
+    public static double @NonNull [] product(final double @NonNull [] x1, final int @NonNull [] x2) {
+        val scratch = Arrays.copyOf(x1, x1.length);
+        range(0, scratch.length).forEach(i -> scratch[i] *= x2[i]);
+        return scratch;
+    }
+
+    public static double @NonNull [] product(final double @NonNull [] x1, final long @NonNull [] x2) {
+        val scratch = Arrays.copyOf(x1, x1.length);
+        range(0, scratch.length).forEach(i -> scratch[i] *= x2[i]);
+        return scratch;
+    }
+
+    /**
+     * In-place implementation, stores the result in {@code x1}
+     *
+     * @see #product
+     */
+    public static void productInPlace(final double @NonNull [] x1, final double @NonNull [] x2) {
+        lengthParity(x1.length, x2.length);
+        range(0, x1.length).forEach(i -> x1[i] *= x2[i]);
+    }
+
+    public static void productInPlace(final double @NonNull [] x1, final int @NonNull [] x2) {
+        range(0, x1.length).forEach(i -> x1[i] *= x2[i]);
+    }
+
+    public static void productInPlace(final double @NonNull [] x1, final long @NonNull [] x2) {
+        range(0, x1.length).forEach(i -> x1[i] *= x2[i]);
     }
 }
+// todo create a version of the product that supports more arguments, replace where needed
+// todo code comprehension: express functions in terms of other functions

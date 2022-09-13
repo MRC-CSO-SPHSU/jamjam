@@ -1,5 +1,6 @@
 package jamjam.arrays;
 
+import lombok.val;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.IntStream;
@@ -35,11 +36,10 @@ public class LinearSpace {
         if (isNaN(start) || isNaN(stop))
             throw new IllegalArgumentException("NaN is passed as an argument");
 
-        double intervalLength = stop - start;
-        if (isInfinite(intervalLength))
-            throw new IllegalArgumentException("Total length of the interval is infinite.");
+        val intervalLength = stop - start;
+        if (isInfinite(intervalLength)) throw new IllegalArgumentException("Total length of the interval is infinite.");
 
-        double stepSize = intervalLength / (endpointIncluded ? totalNumber - 1 : totalNumber);
+        val stepSize = intervalLength / (endpointIncluded ? totalNumber - 1 : totalNumber);
         if (abs(stepSize) < Double.MIN_NORMAL)
             throw new IllegalArgumentException("Underflow, step size is too small, possible loss of precision.");
 

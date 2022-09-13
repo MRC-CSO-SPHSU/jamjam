@@ -3,15 +3,12 @@ package jamjam.aux;
 import com.github.skjolber.stcsv.sa.StringArrayCsvReader;
 import lombok.NonNull;
 import lombok.val;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 
@@ -115,32 +112,33 @@ public class Utils {
      * @param x Double value.
      * @return x or MIN_NORMAL.
      */
-    @Contract(pure = true)
     public static double trim(final double x) {
         return max(x, Double.MIN_NORMAL);
-    }// or eps
+    }
 
     /**
      * Compares lengths of two arrays.
      *
-     * @param x The reference array.
-     * @param y The other array for comparison.
+     * @param x The reference array length
+     * @param y The other array length for comparison.
      * @throws ArithmeticException when length do not match.
      */
-    @Contract(pure = true)
-    public static void lengthParity(final double @NotNull [] x, final double @NotNull [] y) {
-        if (x.length != y.length) throw new ArithmeticException("Input arrays have different sizes");
+    public static void lengthParity(final int x, final int y) {
+        if (x != y) throw new IllegalArgumentException("Input arrays have different sizes");
     }
 
     /**
-     * Checks if the input is suitable for mean calculation.
+     * Checks if the input is suitable for moment calculation.
      *
      * @param x An array of doubles.
      * @throws ArithmeticException When input contains 1 element only.
      */
-    @Contract(pure = true)
-    public static void meanLengthCheck(final double @NonNull [] x) {
-        if (x.length < 2) throw new ArithmeticException("The size of the array has to be at least 2.");
+    public static void momentLengthCheck(final double @NonNull [] x) {
+        if (x.length < 2) throw new IllegalArgumentException("The size of the array has to be at least 2.");
     }
 
 }
+// fixme product relies on conventional loop, fix this
+// As we mentioned earlier, Vector is an immutable interface. All the methods in the vector interface
+//provide the result in a new object. They do not modify the input’s objects
+// fixme check the code for redundant operations
