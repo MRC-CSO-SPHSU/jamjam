@@ -13,6 +13,17 @@ import static jamjam.aux.Utils.lengthParity;
 import static jamjam.aux.Utils.momentLengthCheck;
 import static java.lang.Double.*;
 
+/**
+ * @see <a href="https://mathoverflow.net/questions/22203">Unbiased estimate of the variance of an *unnormalised*
+ * weighted mean</a>
+ * @see <a href="https://mathoverflow.net/questions/11803">unbiased estimate of the variance of a weighted mean</a>
+ * @see <a href="https://stats.stackexchange.com/questions/61225">Correct equation for weighted unbiased sample
+ * covariance</a>
+ * @see <a href="https://stats.stackexchange.com/questions/47325">Bias correction in weighted variance</a>
+ * @see <a href="https://stats.stackexchange.com/questions/51442">Weighted Variance, one more time</a>
+ * @see <a href="https://stats.stackexchange.com/questions/6534">How do I calculate a weighted standard deviation? In
+ * Excel?</a>
+ */
 public class Variance {
 
     /**
