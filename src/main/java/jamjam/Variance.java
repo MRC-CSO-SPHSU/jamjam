@@ -4,11 +4,14 @@ import lombok.NonNull;
 import lombok.val;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+
 import static jamjam.Mean.weightedMean;
 import static jamjam.Sum.broadcastSub;
 import static jamjam.Sum.sum;
 import static jamjam.arrays.Product.product;
 import static jamjam.arrays.Product.productInPlace;
+import static jamjam.aux.Utils.MomentQualifiers.*;
 import static jamjam.aux.Utils.lengthParity;
 import static jamjam.aux.Utils.momentLengthCheck;
 import static java.lang.Double.*;
@@ -37,12 +40,12 @@ public class Variance {
      * @see <a href="https://stats.stackexchange.com/questions/47325/bias-correction-in-weighted-variance">Bias
      * correction in weighted variance</a>
      */
-    public static double weightedUnbiasedVariance(final double @NonNull [] x, final int @NonNull [] weights) { // fixme add mean?
-        momentLengthCheck(x);
+    public static double weightedUnbiasedVariance(final double @NonNull [] x, final int @NonNull [] weights) { // fixme add custom / precalculated mean?
+        momentLengthCheck(x, WEIGHTED_UNBIASED_VARIANCE);
         lengthParity(x.length, weights.length);
 
-        var weightSum = 0L;
-        for (int weight : weights) weightSum += weight;
+        val weightSum = Arrays.stream(weights).asLongStream().sum();
+        if (weightSum == 1) throw new ArithmeticException("Division by zero is imminent");
 
         val actualMean = sum(product(x, weights)) / weightSum;
         val scratch = broadcastSub(x, actualMean);
@@ -63,18 +66,17 @@ public class Variance {
      * correction in weighted variance</a>
      */
     public static double weightedUnbiasedVariance(final double @NonNull [] x, final long @NonNull [] weights) { // fixme add mean?
-        momentLengthCheck(x);
+        momentLengthCheck(x, WEIGHTED_UNBIASED_VARIANCE);
         lengthParity(x.length, weights.length);
 
-        var weightSum = 0L;
-        for (long weight : weights) weightSum += weight;
+        val weightSum = Arrays.stream(weights).sum();
+        if (weightSum == 1) throw new ArithmeticException("Division by zero is imminent");
 
         val actualMean = sum(product(x, weights)) / weightSum;
         val scratch = broadcastSub(x, actualMean);
         productInPlace(scratch, scratch);
         productInPlace(scratch, weights);
         return sum(scratch) / (weightSum - 1);
-
     }
 
     /**
@@ -91,11 +93,11 @@ public class Variance {
      */
     public static double weightedBiasedVariance(final double @NonNull [] x, final double expectedMean,
                                                 final double @NonNull [] weights) {
-        momentLengthCheck(x);
+        momentLengthCheck(x, WEIGHTED_BIASED_VARIANCE);
         val meanValue = meanValueValidator(expectedMean, x, weights);
 
         lengthParity(x.length, weights.length);
-        val sumWeights = sum(weights);
+        var sumWeights = sum(weights);
         val scratch = broadcastSub(x, meanValue);
         productInPlace(scratch, scratch);
         productInPlace(scratch, weights);
@@ -103,7 +105,10 @@ public class Variance {
         var variance = sum(scratch) * sumWeights;
         System.arraycopy(weights, 0, scratch, 0, scratch.length);
         productInPlace(scratch, scratch);
-        return variance / (sumWeights * sumWeights - sum(scratch));
+        sumWeights *= sumWeights;
+        val ss = sum(scratch);
+        if (sumWeights == ss) throw new ArithmeticException("Division by zero is imminent");
+        return variance / (sumWeights - ss);
     }
 
     /**
@@ -117,7 +122,7 @@ public class Variance {
     }
 
     public static double unweightedBiasedVariance(final double @NonNull [] x, final double expectedMean) {
-        momentLengthCheck(x);
+        momentLengthCheck(x, UNWEIGHTED_BIASED_VARIANCE);
         val actualMean = meanValueValidator(expectedMean, x, null);
         val scratch = broadcastSub(x, actualMean);
         productInPlace(scratch, scratch);
@@ -134,7 +139,7 @@ public class Variance {
      * provided.
      **/
     public static double unweightedUnbiasedVariance(final double @NonNull [] x, final double expectedMean) {
-        momentLengthCheck(x);
+        momentLengthCheck(x, UNWEIGHTED_UNBIASED_VARIANCE);
         val actualMean = meanValueValidator(expectedMean, x, null);
         val scratch = broadcastSub(x, actualMean);
         productInPlace(scratch, scratch);

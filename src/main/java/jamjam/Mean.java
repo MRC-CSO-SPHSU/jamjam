@@ -1,6 +1,8 @@
 package jamjam;
 
+import jamjam.aux.Utils;
 import lombok.NonNull;
+import lombok.val;
 import org.jetbrains.annotations.Nullable;
 
 import static jamjam.Sum.sum;
@@ -22,9 +24,11 @@ public final class Mean {
      * @implNote Might result in Inf, -Inf, or NaN if the input is poorly filtered.
      */
     public static double weightedMean(final double @NonNull [] x, final double @Nullable [] weights) {
-        momentLengthCheck(x);
+        momentLengthCheck(x, Utils.MomentQualifiers.MEAN);
         if (weights != null) {
             lengthParity(x.length, weights.length);
+            val sw = sum(weights);
+            if (sw == 0.) throw new ArithmeticException("Division by zero is encountered.");
             return sum(product(x, weights)) / sum(weights);
         } else return mean(x);
     }
@@ -41,7 +45,7 @@ public final class Mean {
      * @implNote Might result in Inf, -Inf, or NaN if the input is poorly filtered
      */
     public static double mean(final double @NonNull [] x) {
-        momentLengthCheck(x);
+        momentLengthCheck(x, Utils.MomentQualifiers.MEAN);
         return sum(x) / x.length;
     }
 }

@@ -131,12 +131,27 @@ public class Utils {
      * Checks if the input is suitable for moment calculation.
      *
      * @param x An array of doubles.
-     * @throws ArithmeticException When input contains 1 element only.
+     * @throws ArithmeticException When input contains fewer elements than needed.
      */
-    public static void momentLengthCheck(final double @NonNull [] x) {
-        if (x.length < 2) throw new IllegalArgumentException("The size of the array has to be at least 2.");
+    public static void momentLengthCheck(final double @NonNull [] x, final @NonNull MomentQualifiers type) {
+        switch (type) {
+            case MEAN, UNCORRECTED_STD, WEIGHTED_UNBIASED_VARIANCE, WEIGHTED_BIASED_VARIANCE,
+                UNWEIGHTED_BIASED_VARIANCE:
+                if (x.length == 0) throw new IllegalArgumentException("The size of the array has to be at least 1.");
+            case CORRECTED_STD, UNWEIGHTED_UNBIASED_VARIANCE:
+                if (x.length < 2) throw new IllegalArgumentException("The size of the array has to be at least 2.");
+        }
     }
 
+    public enum MomentQualifiers {
+        MEAN,
+        CORRECTED_STD,
+        UNCORRECTED_STD,
+        WEIGHTED_BIASED_VARIANCE,
+        WEIGHTED_UNBIASED_VARIANCE,
+        UNWEIGHTED_BIASED_VARIANCE,
+        UNWEIGHTED_UNBIASED_VARIANCE
+    }
 }
 // fixme product relies on conventional loop, fix this
 // As we mentioned earlier, Vector is an immutable interface. All the methods in the vector interface

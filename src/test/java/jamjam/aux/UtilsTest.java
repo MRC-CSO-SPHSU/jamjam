@@ -9,6 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Random;
 
+import static jamjam.aux.Utils.MomentQualifiers.CORRECTED_STD;
+import static jamjam.aux.Utils.MomentQualifiers.UNWEIGHTED_UNBIASED_VARIANCE;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UtilsTest {
@@ -107,8 +109,13 @@ class UtilsTest {
 
     @Test
     void momentLengthCheck() {
-        assertThrows(IllegalArgumentException.class, () -> Utils.momentLengthCheck(new double[]{1}));
-        assertThrows(NullPointerException.class, () -> Utils.momentLengthCheck(null));
+        for (var qualifier : Utils.MomentQualifiers.values()) {
+            if (qualifier == CORRECTED_STD || qualifier == UNWEIGHTED_UNBIASED_VARIANCE)
+                assertThrows(IllegalArgumentException.class, () -> Utils.momentLengthCheck(new double[]{1}, qualifier));
+            else assertThrows(IllegalArgumentException.class, () -> Utils.momentLengthCheck(new double[]{}, qualifier));
+            assertThrows(NullPointerException.class, () -> Utils.momentLengthCheck(null, qualifier));
+        }
+        assertThrows(NullPointerException.class, () -> Utils.momentLengthCheck(new double[]{1}, null));
     }
 
     @Test
