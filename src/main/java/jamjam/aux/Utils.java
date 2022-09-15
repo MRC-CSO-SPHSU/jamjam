@@ -130,16 +130,16 @@ public class Utils {
     /**
      * Checks if the input is suitable for moment calculation.
      *
-     * @param x An array of doubles.
+     * @param length The length of an array.
      * @throws ArithmeticException When input contains fewer elements than needed.
      */
-    public static void momentLengthCheck(final double @NonNull [] x, final @NonNull MomentQualifiers type) {
+    public static void momentLengthCheck(final int length, final @NonNull MomentQualifiers type) {
         switch (type) {
             case MEAN, UNCORRECTED_STD, WEIGHTED_UNBIASED_VARIANCE, WEIGHTED_BIASED_VARIANCE,
                 UNWEIGHTED_BIASED_VARIANCE:
-                if (x.length == 0) throw new IllegalArgumentException("The size of the array has to be at least 1.");
+                if (length == 0) throw new IllegalArgumentException("The size of the array has to be at least 1.");
             case CORRECTED_STD, UNWEIGHTED_UNBIASED_VARIANCE:
-                if (x.length < 2) throw new IllegalArgumentException("The size of the array has to be at least 2.");
+                if (length < 2) throw new IllegalArgumentException("The size of the array has to be at least 2.");
         }
     }
 

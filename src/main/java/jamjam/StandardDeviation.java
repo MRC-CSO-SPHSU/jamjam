@@ -19,7 +19,7 @@ public class StandardDeviation {
      * @return STD.
      */
     public static double uncorrectedSampleSTD(final double @NonNull [] x) {
-        momentLengthCheck(x, CORRECTED_STD);
+        momentLengthCheck(x.length, CORRECTED_STD);
         return sqrt(unweightedBiasedVariance(x, NaN));
     }
 
@@ -30,7 +30,7 @@ public class StandardDeviation {
      * @return STD.
      */
     public static double correctedSampleSTD(final double @NonNull [] x) {
-        momentLengthCheck(x, UNCORRECTED_STD);
+        momentLengthCheck(x.length, UNCORRECTED_STD);
         return sqrt(unweightedUnbiasedVariance(x, NaN));
     }
 }

@@ -24,7 +24,7 @@ public final class Mean {
      * @implNote Might result in Inf, -Inf, or NaN if the input is poorly filtered.
      */
     public static double weightedMean(final double @NonNull [] x, final double @Nullable [] weights) {
-        momentLengthCheck(x, Utils.MomentQualifiers.MEAN);
+        momentLengthCheck(x.length, Utils.MomentQualifiers.MEAN);
         if (weights != null) {
             lengthParity(x.length, weights.length);
             val sw = sum(weights);
@@ -45,7 +45,7 @@ public final class Mean {
      * @implNote Might result in Inf, -Inf, or NaN if the input is poorly filtered
      */
     public static double mean(final double @NonNull [] x) {
-        momentLengthCheck(x, Utils.MomentQualifiers.MEAN);
+        momentLengthCheck(x.length, Utils.MomentQualifiers.MEAN);
         return sum(x) / x.length;
     }
 }

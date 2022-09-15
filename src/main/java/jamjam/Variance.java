@@ -41,7 +41,7 @@ public class Variance {
      * correction in weighted variance</a>
      */
     public static double weightedUnbiasedVariance(final double @NonNull [] x, final int @NonNull [] weights) { // fixme add custom / precalculated mean?
-        momentLengthCheck(x, WEIGHTED_UNBIASED_VARIANCE);
+        momentLengthCheck(x.length, WEIGHTED_UNBIASED_VARIANCE);
         lengthParity(x.length, weights.length);
 
         val weightSum = Arrays.stream(weights).asLongStream().sum();
@@ -66,7 +66,7 @@ public class Variance {
      * correction in weighted variance</a>
      */
     public static double weightedUnbiasedVariance(final double @NonNull [] x, final long @NonNull [] weights) { // fixme add mean?
-        momentLengthCheck(x, WEIGHTED_UNBIASED_VARIANCE);
+        momentLengthCheck(x.length, WEIGHTED_UNBIASED_VARIANCE);
         lengthParity(x.length, weights.length);
 
         val weightSum = Arrays.stream(weights).sum();
@@ -93,7 +93,7 @@ public class Variance {
      */
     public static double weightedBiasedVariance(final double @NonNull [] x, final double expectedMean,
                                                 final double @NonNull [] weights) {
-        momentLengthCheck(x, WEIGHTED_BIASED_VARIANCE);
+        momentLengthCheck(x.length, WEIGHTED_BIASED_VARIANCE);
         val meanValue = meanValueValidator(expectedMean, x, weights);
 
         lengthParity(x.length, weights.length);
@@ -122,7 +122,7 @@ public class Variance {
     }
 
     public static double unweightedBiasedVariance(final double @NonNull [] x, final double expectedMean) {
-        momentLengthCheck(x, UNWEIGHTED_BIASED_VARIANCE);
+        momentLengthCheck(x.length, UNWEIGHTED_BIASED_VARIANCE);
         val actualMean = meanValueValidator(expectedMean, x, null);
         val scratch = broadcastSub(x, actualMean);
         productInPlace(scratch, scratch);
@@ -139,7 +139,7 @@ public class Variance {
      * provided.
      **/
     public static double unweightedUnbiasedVariance(final double @NonNull [] x, final double expectedMean) {
-        momentLengthCheck(x, UNWEIGHTED_UNBIASED_VARIANCE);
+        momentLengthCheck(x.length, UNWEIGHTED_UNBIASED_VARIANCE);
         val actualMean = meanValueValidator(expectedMean, x, null);
         val scratch = broadcastSub(x, actualMean);
         productInPlace(scratch, scratch);

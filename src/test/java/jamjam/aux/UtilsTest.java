@@ -111,11 +111,10 @@ class UtilsTest {
     void momentLengthCheck() {
         for (var qualifier : Utils.MomentQualifiers.values()) {
             if (qualifier == CORRECTED_STD || qualifier == UNWEIGHTED_UNBIASED_VARIANCE)
-                assertThrows(IllegalArgumentException.class, () -> Utils.momentLengthCheck(new double[]{1}, qualifier));
-            else assertThrows(IllegalArgumentException.class, () -> Utils.momentLengthCheck(new double[]{}, qualifier));
-            assertThrows(NullPointerException.class, () -> Utils.momentLengthCheck(null, qualifier));
+                assertThrows(IllegalArgumentException.class, () -> Utils.momentLengthCheck(1, qualifier));
+            else assertThrows(IllegalArgumentException.class, () -> Utils.momentLengthCheck(0, qualifier));
         }
-        assertThrows(NullPointerException.class, () -> Utils.momentLengthCheck(new double[]{1}, null));
+        assertThrows(NullPointerException.class, () -> Utils.momentLengthCheck(1, null));
     }
 
     @Test
