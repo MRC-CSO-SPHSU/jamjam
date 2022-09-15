@@ -40,7 +40,7 @@ class VarianceTest {
 
     @Test
     void testBiasedVariance3() {
-        assertThrows(NullPointerException.class, () -> Variance.unweightedBiasedVariance(null, 10.0d));
+        assertThrows(NullPointerException.class, () -> Variance.unweightedBiasedVariance((double[]) null, 10.0d));
     }
 
     @Test

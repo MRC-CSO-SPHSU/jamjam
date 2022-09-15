@@ -79,7 +79,7 @@ class MeanTest extends Utils {
     @DisplayName("Test weighted mean")
     void weightedMean() {
         assertAll("Should pass all basic checks, the rest is done by regular mean tests.",
-            () -> assertThrows(NullPointerException.class, () -> Mean.weightedMean(null, null),
+            () -> assertThrows(NullPointerException.class, () -> Mean.weightedMean((double[]) null, null),
                 "Null input test fails."),
             () -> assertEquals(Mean.weightedMean(new double[]{80., 90.}, new double[]{20., 30.}), 86.,
                 "Weighting fails."),

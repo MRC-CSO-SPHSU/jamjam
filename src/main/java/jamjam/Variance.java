@@ -129,6 +129,22 @@ public class Variance {
         return sum(scratch) / x.length;
     }
 
+    public static double unweightedBiasedVariance(final int @NonNull [] x, final double expectedMean) {
+        momentLengthCheck(x.length, UNWEIGHTED_BIASED_VARIANCE);
+        val actualMean = meanValueValidator(expectedMean, x, null);
+        val scratch = broadcastSub(x, actualMean);
+        productInPlace(scratch, scratch);
+        return sum(scratch) / x.length;
+    }
+
+    public static double unweightedBiasedVariance(final long @NonNull [] x, final double expectedMean) {
+        momentLengthCheck(x.length, UNWEIGHTED_BIASED_VARIANCE);
+        val actualMean = meanValueValidator(expectedMean, x, null);
+        val scratch = broadcastSub(x, actualMean);
+        productInPlace(scratch, scratch);
+        return sum(scratch) / x.length;
+    }
+
     /**
      * Calculates sample(unbiased) variance.
      *
@@ -164,6 +180,16 @@ public class Variance {
      * @return {@code actualMeanValue} if it's not NaN/Infinity, {@code mean(sample)} otherwise.
      */
     static double meanValueValidator(final double actualMeanValue, final double @NonNull [] sample,
+                                     final double @Nullable [] weights) {
+        return isNaN(actualMeanValue) || isInfinite(actualMeanValue) ? weightedMean(sample, weights) : actualMeanValue;
+    }
+
+    static double meanValueValidator(final double actualMeanValue, final int @NonNull [] sample,
+                                     final double @Nullable [] weights) {
+        return isNaN(actualMeanValue) || isInfinite(actualMeanValue) ? weightedMean(sample, weights) : actualMeanValue;
+    }
+
+    static double meanValueValidator(final double actualMeanValue, final long @NonNull [] sample,
                                      final double @Nullable [] weights) {
         return isNaN(actualMeanValue) || isInfinite(actualMeanValue) ? weightedMean(sample, weights) : actualMeanValue;
     }

@@ -175,6 +175,18 @@ public class Sum {
         return scratch;
     }
 
+    public static double @NonNull [] broadcastSub(final int @NonNull [] x, final double shiftValue) {
+        val scratch = new double[x.length];
+        IntStream.range(0, x.length).forEach(i -> scratch[i] = x[i] - shiftValue);
+        return scratch;
+    }
+
+    public static double @NonNull [] broadcastSub(final long @NonNull [] x, final double shiftValue) {
+        val scratch = new double[x.length];
+        IntStream.range(0, x.length).forEach(i -> scratch[i] = x[i] - shiftValue);
+        return scratch;
+    }
+
     /**
      * In-place implementation.
      *

@@ -5,6 +5,8 @@ import lombok.NonNull;
 import lombok.val;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+
 import static jamjam.Sum.sum;
 import static jamjam.arrays.Product.product;
 import static jamjam.aux.Utils.lengthParity;
@@ -33,6 +35,13 @@ public final class Mean {
         } else return mean(x);
     }
 
+    public static double weightedMean(final int @NonNull [] x, final double @Nullable [] weights) {
+        return weightedMean(Arrays.stream(x).asDoubleStream().toArray(), weights);
+    }
+
+    public static double weightedMean(final long @NonNull [] x, final double @Nullable [] weights) {
+        return weightedMean(Arrays.stream(x).asDoubleStream().toArray(), weights);
+    }
 
     /**
      * Calculates arithmetic average of all input values.
