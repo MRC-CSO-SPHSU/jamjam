@@ -138,8 +138,10 @@ public class Utils {
             case MEAN, UNCORRECTED_STD, WEIGHTED_UNBIASED_VARIANCE, WEIGHTED_BIASED_VARIANCE,
                 UNWEIGHTED_BIASED_VARIANCE:
                 if (length == 0) throw new IllegalArgumentException("The size of the array has to be at least 1.");
+                break;
             case CORRECTED_STD, UNWEIGHTED_UNBIASED_VARIANCE:
                 if (length < 2) throw new IllegalArgumentException("The size of the array has to be at least 2.");
+                break;
         }
     }
 
