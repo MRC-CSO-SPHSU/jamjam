@@ -12,7 +12,6 @@ import static jdk.incubator.vector.DoubleVector.SPECIES_PREFERRED;
 
 public class Product {
     private Product() {
-        throw new IllegalStateException("Utility class");
     }
     /**
      * Calculates the product of two vectors.

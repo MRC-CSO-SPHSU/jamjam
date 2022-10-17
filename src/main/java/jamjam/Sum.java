@@ -20,7 +20,6 @@ import static jdk.incubator.vector.VectorOperators.GE;
 @SuppressWarnings("unused")
 public class Sum {
     private Sum() {
-        throw new IllegalStateException("Utility class");
     }
 
     /**

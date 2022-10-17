@@ -10,7 +10,6 @@ import static java.lang.StrictMath.log10;
 
 public class StatisticalDistance {
     private StatisticalDistance() {
-        throw new IllegalStateException("Utility class");
     }
 
     /**

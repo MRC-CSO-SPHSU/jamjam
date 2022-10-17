@@ -14,7 +14,6 @@ import static jamjam.aux.Utils.momentLengthCheck;
 
 public final class Mean {
     private Mean() {
-        throw new IllegalStateException("Utility class");
     }
 
     /**

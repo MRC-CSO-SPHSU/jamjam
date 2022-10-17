@@ -12,7 +12,6 @@ import static java.lang.StrictMath.signum;
 
 public class ARange {
     private ARange() {
-        throw new IllegalStateException("Utility class");
     }
 
     /**

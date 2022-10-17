@@ -12,7 +12,6 @@ import static java.lang.StrictMath.sqrt;
 
 public class StandardDeviation {
     private StandardDeviation() {
-        throw new IllegalStateException("Utility class");
     }
 
     /**

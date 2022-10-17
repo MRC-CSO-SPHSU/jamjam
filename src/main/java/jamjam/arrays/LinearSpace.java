@@ -12,7 +12,6 @@ import static java.lang.StrictMath.fma;
 
 public class LinearSpace {
     private LinearSpace() {
-        throw new IllegalStateException("Utility class");
     }
     /**
      * Creates {@code totalNumber} sub-intervals of the same length from {@code start} to {@code stop}.

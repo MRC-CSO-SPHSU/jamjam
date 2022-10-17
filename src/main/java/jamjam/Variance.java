@@ -30,7 +30,6 @@ import static java.lang.Double.*;
 public class Variance {
     private static final String DIVISION_ZERO = "Division by zero is imminent";
     private Variance() {
-        throw new IllegalStateException("Utility class");
     }
 
     /**
