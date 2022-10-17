@@ -28,6 +28,7 @@ import static java.lang.Double.*;
  * Excel?</a>
  */
 public class Variance {
+    private static final String DIVISION_ZERO = "Division by zero is imminent";
     private Variance() {
         throw new IllegalStateException("Utility class");
     }
@@ -48,7 +49,7 @@ public class Variance {
         lengthParity(x.length, weights.length);
 
         val weightSum = Arrays.stream(weights).asLongStream().sum();
-        if (weightSum == 1) throw new ArithmeticException("Division by zero is imminent");
+        if (weightSum == 1) throw new ArithmeticException(DIVISION_ZERO);
 
         val actualMean = sum(product(x, weights)) / weightSum;
         val scratch = broadcastSub(x, actualMean);
@@ -73,7 +74,7 @@ public class Variance {
         lengthParity(x.length, weights.length);
 
         val weightSum = Arrays.stream(weights).sum();
-        if (weightSum == 1) throw new ArithmeticException("Division by zero is imminent");
+        if (weightSum == 1) throw new ArithmeticException(DIVISION_ZERO);
 
         val actualMean = sum(product(x, weights)) / weightSum;
         val scratch = broadcastSub(x, actualMean);
@@ -110,7 +111,7 @@ public class Variance {
         productInPlace(scratch, scratch);
         sumWeights *= sumWeights;
         val ss = sum(scratch);
-        if (sumWeights == ss) throw new ArithmeticException("Division by zero is imminent");
+        if (sumWeights == ss) throw new ArithmeticException(DIVISION_ZERO);
         return variance / (sumWeights - ss);
     }
 
