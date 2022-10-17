@@ -25,12 +25,13 @@ class UtilsTest {
         Utils.shuffleDoubleArray(x, generator);
         assertArrayEquals(x, y);
 
+        val rng = new Random();
         var scratch = new double[]{};
-        Utils.shuffleDoubleArray(scratch, new Random());
+        Utils.shuffleDoubleArray(scratch, rng);
         assertArrayEquals(new double[]{}, scratch);
 
         scratch = new double[]{0.};
-        Utils.shuffleDoubleArray(scratch, new Random());
+        Utils.shuffleDoubleArray(scratch, rng);
         assertArrayEquals(new double[]{0.}, scratch);
     }
 
@@ -102,9 +103,9 @@ class UtilsTest {
     @Test
     void trim() {
         assertAll("Any number that is less than Double.MIN_NORMAL must result in Double.MIN_NORMAL returned.",
-            () -> assertEquals(Utils.trim(0), Double.MIN_NORMAL, "Comparison to 0 fails."),
-            () -> assertEquals(Utils.trim(-1), Double.MIN_NORMAL, "Comparison to -1 fails."),
-            () -> assertEquals(Utils.trim(1), 1, "Comparison to 1 fails."));
+            () -> assertEquals(Double.MIN_NORMAL, Utils.trim(0), "Comparison to 0 fails."),
+            () -> assertEquals(Double.MIN_NORMAL, Utils.trim(-1), "Comparison to -1 fails."),
+            () -> assertEquals(1, Utils.trim(1), "Comparison to 1 fails."));
     }
 
     @Test
