@@ -1,31 +1,29 @@
 package jamjam;
 
 import jamjam.aux.Utils;
-
 import jdk.incubator.vector.DoubleVector;
 import lombok.val;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.Random;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 import static jamjam.Sum.*;
-import static java.lang.StrictMath.*;
+import static java.lang.StrictMath.pow;
+import static java.lang.StrictMath.sin;
 import static jdk.incubator.vector.DoubleVector.SPECIES_PREFERRED;
 import static jdk.incubator.vector.DoubleVector.broadcast;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SumTest extends Utils {
 
     /**
      * Generates an ill-conditioned sum and some variations.
      */
-    @Disabled
+    @Disabled("The method needs another corrector to pass this one.")
     @Test
     @DisplayName("Test calculating KBK sums")
     void testSum() {
@@ -101,9 +99,9 @@ class SumTest extends Utils {
     @DisplayName("Test weighted sum")
     void testWeightedSum() {
         assertAll("Should pass all basic checks, the rest is done by regular mean tests.",
-            () -> assertEquals(Sum.weightedSum(new double[]{80., 90.}, new double[]{20., 30.}), 4300.,
+            () -> assertEquals(4300., Sum.weightedSum(new double[]{80., 90.}, new double[]{20., 30.}),
                 "Weighting fails."),
-            () -> assertEquals(Sum.weightedSum(new double[]{2., 2.}, new double[]{2., 2.}), 8.,
+            () -> assertEquals(8., Sum.weightedSum(new double[]{2., 2.}, new double[]{2., 2.}),
                 "Can't pass identical weights check."),
             () -> assertEquals(0., Sum.weightedSum(new double[]{}, new double[]{}),
                 "Input size check fails."));
