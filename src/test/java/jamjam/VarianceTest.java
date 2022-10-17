@@ -7,7 +7,8 @@ import java.util.Arrays;
 
 import static jamjam.Variance.weightedUnbiasedVariance;
 import static java.lang.Double.NaN;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class VarianceTest {
 
@@ -50,11 +51,11 @@ class VarianceTest {
 
     @Test
     void testBiasedVariance5() {
-        assertThrows(NullPointerException.class, () -> Variance.weightedBiasedVariance(null,  10.0d, null));
+        assertThrows(NullPointerException.class, () -> Variance.weightedBiasedVariance(null, 10.0d, null));
     }
 
     @Test
-    void testWeightedUnbiasedVariance() {
+    void testUnweightedUnbiasedVariance() {
         assertEquals(0.0d, Variance.unweightedUnbiasedVariance(new double[]{2.0d, 2.0d, 2.0d, 2.0d}));
         assertEquals(1.0d, Variance.unweightedUnbiasedVariance(new double[]{0.0d, 2.0d, 2.0d, 2.0d}));
         assertThrows(IllegalArgumentException.class, () -> Variance.unweightedUnbiasedVariance(new double[]{}));
@@ -144,6 +145,24 @@ class VarianceTest {
             new long[]{1, 2}, null));
         assertEquals(1.0, Variance.meanValueValidator(1.0, new long[]{1, 2}, null));
         assertThrows(NullPointerException.class, () -> Variance.meanValueValidator(0, (long[]) null, null));
+    }
+
+    @Test
+    void testWeightedUnbiasedVariance() {
+        assertThrows(ArithmeticException.class, () -> weightedUnbiasedVariance(new double[2], new int[]{0, 1}));
+        assertThrows(NullPointerException.class, () -> weightedUnbiasedVariance(null, new int[]{0, 1}));
+        assertThrows(NullPointerException.class, () -> weightedUnbiasedVariance(new double[2], (int[]) null));
+
+        assertEquals(0, weightedUnbiasedVariance(new double[]{1, 1}, new int[]{1, 1}));
+    }
+
+    @Test
+    void testWeightedUnbiasedVariance2() {
+        assertThrows(ArithmeticException.class, () -> weightedUnbiasedVariance(new double[2], new long[]{0, 1}));
+        assertThrows(NullPointerException.class, () -> weightedUnbiasedVariance(null, new long[]{0, 1}));
+        assertThrows(NullPointerException.class, () -> weightedUnbiasedVariance(new double[2], (long[]) null));
+
+        assertEquals(0, weightedUnbiasedVariance(new double[]{1, 1}, new long[]{1, 1}));
     }
 }
 
