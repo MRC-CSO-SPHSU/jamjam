@@ -44,12 +44,14 @@ public class Product {
     }
 
     public static double @NonNull [] product(final double @NonNull [] x1, final int @NonNull [] x2) {
+        lengthParity(x1.length, x2.length);
         val scratch = Arrays.copyOf(x1, x1.length);
         range(0, scratch.length).forEach(i -> scratch[i] *= x2[i]);
         return scratch;
     }
 
     public static double @NonNull [] product(final double @NonNull [] x1, final long @NonNull [] x2) {
+        lengthParity(x1.length, x2.length);
         val scratch = Arrays.copyOf(x1, x1.length);
         range(0, scratch.length).forEach(i -> scratch[i] *= x2[i]);
         return scratch;
@@ -66,10 +68,12 @@ public class Product {
     }
 
     public static void productInPlace(final double @NonNull [] x1, final int @NonNull [] x2) {
+        lengthParity(x1.length, x2.length);
         range(0, x1.length).forEach(i -> x1[i] *= x2[i]);
     }
 
     public static void productInPlace(final double @NonNull [] x1, final long @NonNull [] x2) {
+        lengthParity(x1.length, x2.length);
         range(0, x1.length).forEach(i -> x1[i] *= x2[i]);
     }
 }
