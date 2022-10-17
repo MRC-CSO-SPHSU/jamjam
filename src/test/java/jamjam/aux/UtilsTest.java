@@ -38,8 +38,9 @@ class UtilsTest {
     @Test
     @DisplayName("Shuffle throws")
     void testShuffleDoubleArray() {
+        val rng = new Random();
         assertThrows(NullPointerException.class, () -> Utils.shuffleDoubleArray(new double[]{}, null));
-        assertThrows(NullPointerException.class, () -> Utils.shuffleDoubleArray(null, new Random()));
+        assertThrows(NullPointerException.class, () -> Utils.shuffleDoubleArray(null, rng));
     }
 
     @Test
@@ -90,9 +91,11 @@ class UtilsTest {
 
     @Test
     void testReadTestingValues() {
+        val data = Utils.readTestingValues(new ByteArrayInputStream(new byte[]{}));
         assertThrows(RuntimeException.class,
             () -> Utils.readTestingValues(new ByteArrayInputStream("AAAAAAAA".getBytes(StandardCharsets.UTF_8))));
-        assertEquals(0, Utils.readTestingValues(new ByteArrayInputStream(new byte[]{})).length);
+        assert data != null;
+        assertEquals(0, data.length);
     }
 
     @Test
