@@ -5,9 +5,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LinearSpaceTest {
 
@@ -46,11 +43,11 @@ class LinearSpaceTest {
         assert scratch != null;
         assertEquals(50, scratch.length,
             "Length of the output array diverges from the expected (default) value");
-        assertEquals(scratch[scratch.length - 1], 10., "Actual endpoint value doesn't meet its expected value.");
+        assertEquals(10., scratch[scratch.length - 1], "Actual endpoint value doesn't meet its expected value.");
 
         scratch = LinearSpace.linspace(0., 10., false);
         assert scratch != null;
-        assertEquals(scratch[scratch.length - 1], 9.8, "Actual endpoint value doesn't meet its expected value.");
+        assertEquals(9.8, scratch[scratch.length - 1], "Actual endpoint value doesn't meet its expected value.");
     }
 
     @Test
@@ -60,7 +57,7 @@ class LinearSpaceTest {
         assert scratch != null;
         assertEquals(50, scratch.length,
             "Length of the output array diverges from the expected (default) value");
-        assertEquals(scratch[scratch.length - 1], 10., "Actual endpoint value doesn't meet its expected value.");
+        assertEquals(10., scratch[scratch.length - 1], "Actual endpoint value doesn't meet its expected value.");
 
         val range1 = new int[]{120, -100};
         val range2 = new long[]{120, -100};
