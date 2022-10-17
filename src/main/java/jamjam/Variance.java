@@ -28,6 +28,9 @@ import static java.lang.Double.*;
  * Excel?</a>
  */
 public class Variance {
+    private Variance() {
+        throw new IllegalStateException("Utility class");
+    }
 
     /**
      * Calculates unbiased variance of weighted data.

@@ -13,6 +13,9 @@ import static jamjam.aux.Utils.lengthParity;
 import static jamjam.aux.Utils.momentLengthCheck;
 
 public final class Mean {
+    private Mean() {
+        throw new IllegalStateException("Utility class");
+    }
 
     /**
      * Calculates a weighted arithmetic average of the provided data input.

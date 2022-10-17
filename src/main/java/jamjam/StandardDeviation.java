@@ -11,6 +11,9 @@ import static java.lang.Double.NaN;
 import static java.lang.StrictMath.sqrt;
 
 public class StandardDeviation {
+    private StandardDeviation() {
+        throw new IllegalStateException("Utility class");
+    }
 
     /**
      * Calculates STD employing {@code 1 / N} factor.

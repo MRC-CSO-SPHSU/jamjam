@@ -11,6 +11,9 @@ import static java.lang.StrictMath.fma;
 import static java.lang.StrictMath.signum;
 
 public class ARange {
+    private ARange() {
+        throw new IllegalStateException("Utility class");
+    }
 
     /**
      * Generates a range of numbers starting with {@code start}, but not including {@code stop}. The length of the step

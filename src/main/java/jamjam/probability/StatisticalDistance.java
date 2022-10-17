@@ -9,6 +9,9 @@ import static jamjam.aux.Utils.trim;
 import static java.lang.StrictMath.log10;
 
 public class StatisticalDistance {
+    private StatisticalDistance() {
+        throw new IllegalStateException("Utility class");
+    }
 
     /**
      * Calculates relative entropy of two discrete probability distributions
