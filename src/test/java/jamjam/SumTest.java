@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
+import static jamjam.Sum.*;
 import static java.lang.StrictMath.*;
 import static jdk.incubator.vector.DoubleVector.SPECIES_PREFERRED;
 import static jdk.incubator.vector.DoubleVector.broadcast;
@@ -27,7 +28,7 @@ class SumTest extends Utils {
     @Disabled
     @Test
     @DisplayName("Test calculating KBK sums")
-    void sum() {
+    void testSum() {
         Random generator = new Random(0);
         val sampleSize = 100000;
         val temp = new double[200];
@@ -56,7 +57,7 @@ class SumTest extends Utils {
      */
     @Test
     @DisplayName("Test summation and function sanity")
-    void input() {
+    void testInput() {
         assertAll("KBK summation scheme works incorrectly.",
             () -> assertEquals(2.0, Sum.sum(1, 1e100, 1, -1e100), "Incorrect rounding-off."),
             () -> assertEquals(55.0, Sum.sum(IntStream.range(1, 11).mapToDouble(i -> 1.0 * i).toArray()),
@@ -80,7 +81,7 @@ class SumTest extends Utils {
      */
     @Test
     @DisplayName("Test accuracy of summation and stability after permutations")
-    void integralSum() {
+    void testIntegralSum() {
         Random generator = new Random(0);
         val NLIM = 50_000_000;
         val startPoint = 0.;
@@ -98,7 +99,7 @@ class SumTest extends Utils {
 
     @Test
     @DisplayName("Test weighted sum")
-    void weightedSum() {
+    void testWeightedSum() {
         assertAll("Should pass all basic checks, the rest is done by regular mean tests.",
             () -> assertEquals(Sum.weightedSum(new double[]{80., 90.}, new double[]{20., 30.}), 4300.,
                 "Weighting fails."),
@@ -115,7 +116,7 @@ class SumTest extends Utils {
 
     @Test
     @DisplayName("Test cumulative sum")
-    void cumulativeSum() {
+    void testCumulativeSum() {
         assertAll("Simple sums that can be easily verified manually must work, but they don't",
             () -> assertArrayEquals(new double[]{1., 2., 3.}, Sum.cumulativeSum(1., 1., 1.),
                 "The trivial example fails."),
@@ -138,7 +139,7 @@ class SumTest extends Utils {
 
     @Test
     @DisplayName("Test weighted cumulative sum")
-    void weightedCumulativeSum() {
+    void testWeightedCumulativeSum() {
         assertArrayEquals(Sum.cumulativeSum(1., 2., 3.),
             Sum.weightedCumulativeSum(new double[]{1., 2., 3.}, new double[]{1., 1., 1.}),
             "Multiplying by a vector of 1 must give the same result as the conventional cumulative sum method.");
@@ -161,13 +162,13 @@ class SumTest extends Utils {
 
     @Test
     @DisplayName("Test trivial compensated sum")
-    void trivialSum() {
+    void testTrivialSum() {
         val scratch = new double[]{2.0d, 2.0d, 2.0d, 2.0d};
         assertEquals(8, Sum.sum(scratch));
     }
 
     @Test
-    void accumulator() {
+    void testAccumulator() {
         val a = new Sum.Accumulator();
         val b = new Sum.Accumulator();
         a.sum(1.);
@@ -189,7 +190,7 @@ class SumTest extends Utils {
     }
 
     @Test
-    void vectorSum() {
+    void testVectorSum() {
         val testArray = new DoubleVector[]{broadcast(SPECIES_PREFERRED, 1), broadcast(SPECIES_PREFERRED, 1e100),
             broadcast(SPECIES_PREFERRED, 1), broadcast(SPECIES_PREFERRED, -1e100)};
         var expected = broadcast(SPECIES_PREFERRED, 2);
@@ -231,9 +232,131 @@ class SumTest extends Utils {
     }
 
     @Test
-    void streamSum() {
+    void testStreamSum() {
         DoubleStream x = DoubleStream.of(1, 2, 4);
         assertEquals(7, Sum.sum(x));
         assertThrows(NullPointerException.class, () -> Sum.sum((DoubleStream) null));
+    }
+
+    @Test
+    void testBroadcastAdd() {
+        val x = new double[]{1, 2, 3};
+        var shift = 0;
+        var y = broadcastAdd(x, shift);
+        assertArrayEquals(x, y);
+        assertNotEquals(y, x);
+
+        shift = 1;
+        y = broadcastAdd(x, shift);
+        var y1 = new double[x.length];
+        for (int i = 0; i < x.length; i++)
+            y1[i] = x[i] + shift;
+
+        assertArrayEquals(y1, y);
+
+        shift = 2;
+        y = broadcastAdd(x, shift);
+        y1 = new double[x.length];
+        for (int i = 0; i < x.length; i++)
+            y1[i] = x[i] + shift;
+
+        assertArrayEquals(y1, y);
+    }
+
+    @Test
+    void testBroadcastSub() {
+        val x = new int[]{1, 2, 3};
+        val xToDouble = new double[x.length];
+        xToDouble[0] = x[0];
+        xToDouble[1] = x[1];
+        xToDouble[2] = x[2];
+
+        var shift = 0;
+        var y = broadcastSub(x, shift);
+        assertArrayEquals(xToDouble, y);
+
+        shift = 1;
+        y = broadcastSub(x, shift);
+        var y1 = new double[x.length];
+        for (int i = 0; i < x.length; i++)
+            y1[i] = x[i] - shift;
+
+        assertArrayEquals(y1, y);
+
+        shift = 2;
+        y = broadcastSub(x, shift);
+        y1 = new double[x.length];
+        for (int i = 0; i < x.length; i++)
+            y1[i] = x[i] - shift;
+
+        assertArrayEquals(y1, y);
+    }
+
+    @Test
+    void testBroadcastSub2() {
+        val x = new long[]{1, 2, 3};
+        val xToDouble = new double[x.length];
+        xToDouble[0] = x[0];
+        xToDouble[1] = x[1];
+        xToDouble[2] = x[2];
+
+        var shift = 0;
+        var y = broadcastSub(x, shift);
+        assertArrayEquals(xToDouble, y);
+
+        shift = 1;
+        y = broadcastSub(x, shift);
+        var y1 = new double[x.length];
+        for (int i = 0; i < x.length; i++)
+            y1[i] = x[i] - shift;
+
+        assertArrayEquals(y1, y);
+
+        shift = 2;
+        y = broadcastSub(x, shift);
+        y1 = new double[x.length];
+        for (int i = 0; i < x.length; i++)
+            y1[i] = x[i] - shift;
+
+        assertArrayEquals(y1, y);
+    }
+
+    @Test
+    void testBroadcastAddInPlace() {
+        val base = new double[]{1, 2, 3};
+        var clone = base.clone();
+
+        var shift = 0.;
+        broadcastAddInPlace(clone, shift);
+        assertArrayEquals(base, clone);
+
+        shift = 12.;
+        broadcastAddInPlace(clone, shift);
+
+        var y = new double[base.length];
+        for (int i = 0; i < base.length; i++)
+            y[i] = base[i] + shift;
+
+        assertArrayEquals(y, clone);
+
+    }
+
+    @Test
+    void testBroadcastSubInPlace() {
+        val base = new double[]{1, 2, 3};
+        var clone = base.clone();
+
+        var shift = 0.;
+        broadcastSubInPlace(clone, shift);
+        assertArrayEquals(base, clone);
+
+        shift = 12.;
+        broadcastSubInPlace(clone, shift);
+
+        var y = new double[base.length];
+        for (int i = 0; i < base.length; i++)
+            y[i] = base[i] - shift;
+
+        assertArrayEquals(y, clone);
     }
 }
