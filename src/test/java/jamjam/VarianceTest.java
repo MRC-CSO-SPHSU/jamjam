@@ -54,7 +54,7 @@ class VarianceTest {
     }
 
     @Test
-    void testUnbiasedVariance() {
+    void testWeightedUnbiasedVariance() {
         assertEquals(0.0d, Variance.unweightedUnbiasedVariance(new double[]{2.0d, 2.0d, 2.0d, 2.0d}));
         assertEquals(1.0d, Variance.unweightedUnbiasedVariance(new double[]{0.0d, 2.0d, 2.0d, 2.0d}));
         assertThrows(IllegalArgumentException.class, () -> Variance.unweightedUnbiasedVariance(new double[]{}));
@@ -84,6 +84,7 @@ class VarianceTest {
         assertEquals(0.15000000000000002, Variance.meanValueValidator(Double.POSITIVE_INFINITY,
             new double[]{0.1, 0.2}, null));
         assertEquals(1.0, Variance.meanValueValidator(1.0, new double[]{0.1, 0.2}, null));
+        assertThrows(NullPointerException.class, () -> Variance.meanValueValidator(0, (double[]) null, null));
     }
 
     @Test
@@ -119,6 +120,30 @@ class VarianceTest {
         val weights = new int[]{2, 1, 3};
 
         assertEquals(Variance.unweightedUnbiasedVariance(x1), weightedUnbiasedVariance(x2, weights));
+    }
+
+    @Test
+    void testMeanValueValidator1() {
+        assertEquals(10.0d, Variance.meanValueValidator(10.0d, new int[]{10, 10, 10, 10}, null));
+        assertEquals(10.0d, Variance.meanValueValidator(NaN, new int[]{10, 10, 10, 10}, null));
+        assertEquals(7.5d, Variance.meanValueValidator(NaN, new int[]{0, 10, 10, 10}, null));
+        assertEquals(1.5, Variance.meanValueValidator(NaN, new int[]{1, 2}, null));
+        assertEquals(1.5, Variance.meanValueValidator(Double.POSITIVE_INFINITY,
+            new int[]{1, 2}, null));
+        assertEquals(1.0, Variance.meanValueValidator(1.0, new int[]{1, 2}, null));
+        assertThrows(NullPointerException.class, () -> Variance.meanValueValidator(0, (int[]) null, null));
+    }
+
+    @Test
+    void testMeanValueValidator2() {
+        assertEquals(10.0d, Variance.meanValueValidator(10.0d, new long[]{10, 10, 10, 10}, null));
+        assertEquals(10.0d, Variance.meanValueValidator(NaN, new long[]{10, 10, 10, 10}, null));
+        assertEquals(7.5d, Variance.meanValueValidator(NaN, new long[]{0, 10, 10, 10}, null));
+        assertEquals(1.5, Variance.meanValueValidator(NaN, new long[]{1, 2}, null));
+        assertEquals(1.5, Variance.meanValueValidator(Double.POSITIVE_INFINITY,
+            new long[]{1, 2}, null));
+        assertEquals(1.0, Variance.meanValueValidator(1.0, new long[]{1, 2}, null));
+        assertThrows(NullPointerException.class, () -> Variance.meanValueValidator(0, (long[]) null, null));
     }
 }
 
