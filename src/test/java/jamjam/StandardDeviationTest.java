@@ -57,7 +57,7 @@ class StandardDeviationTest {
                 val m = String.format(" (|% 6.16e| observed vs |% 6.16e| expected), see %s;", std, expectedSTD, f);
 
                 assertAll("Should return a neutral test status value i.e. 0",
-                    () -> assertEquals(status, 0, m),
+                    () -> assertEquals(0, status, m),
                     () -> assertNotEquals(status, -1, m + " [test uses subnormal value]"));
             }
         }
