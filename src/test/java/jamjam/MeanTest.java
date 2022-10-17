@@ -52,7 +52,7 @@ class MeanTest extends Utils {
                 var m = String.format(" (|% 6.16e| observed vs |% 6.16e| expected), see %s;", mean, expectedMean, f);
 
                 assertAll("Should return a neutral test status value i.e. 0",
-                    () -> assertEquals(status, 0, m),
+                    () -> assertEquals(0, status, m),
                     () -> assertNotEquals(status, -1, m + " [test uses subnormal value]"));
 
             }
@@ -67,7 +67,7 @@ class MeanTest extends Utils {
         assertThrows(NullPointerException.class, () -> Mean.mean(null), "Null input test fails.");
     }
 
-    @Disabled
+    @Disabled("Current implementation can't handle this corner-case well.")
     @Test
     @DisplayName("Test overflow")
     void overflow() {
@@ -81,9 +81,9 @@ class MeanTest extends Utils {
         assertAll("Should pass all basic checks, the rest is done by regular mean tests.",
             () -> assertThrows(NullPointerException.class, () -> Mean.weightedMean((double[]) null, null),
                 "Null input test fails."),
-            () -> assertEquals(Mean.weightedMean(new double[]{80., 90.}, new double[]{20., 30.}), 86.,
+            () -> assertEquals(86., Mean.weightedMean(new double[]{80., 90.}, new double[]{20., 30.}),
                 "Weighting fails."),
-            () -> assertEquals(Mean.weightedMean(new double[]{2., 2.}, new double[]{2., 2.}), 2.,
+            () -> assertEquals(2., Mean.weightedMean(new double[]{2., 2.}, new double[]{2., 2.}),
                 "Can't pass identical weights check."));
 
     }
