@@ -74,4 +74,4 @@ public class Product {
     }
 }
 // todo create a version of the product that supports more arguments, replace where needed
-// todo code comprehension: express functions in terms of other functions
+// todo code consolidation: express functions in terms of other functions
