@@ -23,7 +23,7 @@ jobs:
         language:
           - java
         java-version:
-          - 18
+          - 21
 
     steps:
       - name: Checkout repository
